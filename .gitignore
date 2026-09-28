@@ -1,0 +1,31 @@
+# ---------- اطلاعات حساس (هرگز کامیت نشوند) ----------
+.env
+*.env
+!.env.example
+
+# ---------- داده‌های زمان اجرا ----------
+data/
+backups/
+logs/
+*.db
+*.db-wal
+*.db-shm
+*.sqlite
+*.sqlite3
+
+# ---------- پایتون ----------
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+env/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# ---------- ویرایشگر و سیستم‌عامل ----------
+.idea/
+.vscode/
+*.swp
+.DS_Store

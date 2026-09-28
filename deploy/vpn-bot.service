@@ -1,0 +1,41 @@
+# =====================================================================
+#  سرویس systemd ربات فروش فیلترشکن
+#
+#  اسکریپت scripts/install.sh این فایل را به صورت خودکار (با مسیر پروژه و
+#  کاربر صحیح) در /etc/systemd/system/vpn-bot.service نصب می‌کند.
+#
+#  نصب دستی (اگر پروژه در مسیر /opt/vpn-bot قرار دارد):
+#    sudo cp deploy/vpn-bot.service /etc/systemd/system/vpn-bot.service
+#    sudo systemctl daemon-reload
+#    sudo systemctl enable --now vpn-bot
+#
+#  اگر پروژه در مسیر دیگری است، سه مسیر /opt/vpn-bot زیر و User را اصلاح کنید.
+# =====================================================================
+
+[Unit]
+Description=VPN Shop Telegram Bot
+Documentation=https://github.com/HOTKYNTAKY/1387eiman
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=root
+WorkingDirectory=/opt/vpn-bot
+ExecStart=/opt/vpn-bot/.venv/bin/python -m bot
+Environment=PYTHONUNBUFFERED=1
+
+# در صورت توقف یا خطا، ربات پس از ۱۰ ثانیه دوباره اجرا می‌شود
+Restart=always
+RestartSec=10
+# کد خروج 2 یعنی خطای تنظیمات (مثلاً توکن نامعتبر)؛ اجرای دوباره فایده‌ای ندارد
+RestartPreventExitStatus=2
+TimeoutStopSec=20
+
+# تنظیمات امنیتی
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=full
+
+[Install]
+WantedBy=multi-user.target
