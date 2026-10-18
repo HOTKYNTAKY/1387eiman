@@ -1,0 +1,20 @@
+# AETHER — one-command production deploy:
+#   cp .env.example .env   # (optional: set PORT)
+#   docker compose up -d --build
+services:
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: aether-web:latest
+    container_name: aether-web
+    restart: unless-stopped
+    ports:
+      - "${PORT:-8080}:80"
+    # Behind a host reverse-proxy (Caddy/Nginx/Traefik) you can drop `ports`
+    # and join the proxy network instead.
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
