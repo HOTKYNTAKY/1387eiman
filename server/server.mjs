@@ -27,6 +27,7 @@ const DISCOUNTS_FILE = path.join(DATA_DIR, 'discounts.json');
 const ANN_FILE = path.join(DATA_DIR, 'announcements.json');
 const COMMENTS_FILE = path.join(DATA_DIR, 'comments.json');
 const SESSIONS_FILE = path.join(DATA_DIR, 'sessions.json');
+const REPORTS_FILE = path.join(DATA_DIR, 'reports.json');
 
 const DEFAULT_CONFIG = {
   pricePerGB: 4000,          // تومان
@@ -40,6 +41,7 @@ const DEFAULT_CONFIG = {
   pgUsername: '',            // جایگزین کلید API: نام کاربری پنل (حساب نمایندگی)
   pgPassword: '',            // رمز همان حساب — ورود خودکار و دریافت توکن JWT
   pgGroupIds: [],            // خالی = همه گروه‌ها
+  panels: null,              // پنل‌های پاسارگارد (از روی تنظیمات قدیمی خودکار ساخته می‌شود)
   adminPassHash: null,       // null یعنی هنوز راه‌اندازی نشده
 };
 
@@ -62,6 +64,7 @@ let chats = loadJson(CHATS_FILE, {});            // userId -> {userId, username,
 let discounts = loadJson(DISCOUNTS_FILE, []);      // [{id, code, codeKey, type, value, maxUses, oncePerUser, expiresAt, active, note, createdAt}]
 let announcements = loadJson(ANN_FILE, []);         // [{id, title, body, level, pinned, active, createdAt, updatedAt}]
 let comments = loadJson(COMMENTS_FILE, []);         // [{id, userId, username, text, status:'pending'|'approved', createdAt}]
+let serviceReports = loadJson(REPORTS_FILE, []);     // [{id, code, userId, username, panelId, panelName, text, status:'open'|'done', createdAt, resolvedAt}]
 if (!fs.existsSync(CONFIG_FILE)) saveJson(CONFIG_FILE, config, 0o600);
 const saveConfig = () => saveJson(CONFIG_FILE, config, 0o600);
 const saveOrders = () => saveJson(ORDERS_FILE, orders, 0o600);
@@ -70,6 +73,7 @@ const saveChats = () => saveJson(CHATS_FILE, chats, 0o600);
 const saveDiscounts = () => saveJson(DISCOUNTS_FILE, discounts, 0o600);
 const saveAnnouncements = () => saveJson(ANN_FILE, announcements, 0o600);
 const saveComments = () => saveJson(COMMENTS_FILE, comments, 0o600);
+const saveReports = () => saveJson(REPORTS_FILE, serviceReports, 0o600);
 const persistedSessions = loadJson(SESSIONS_FILE, { admin: {}, user: {} });
 function saveSessions() {
   try { saveJson(SESSIONS_FILE, { admin: Object.fromEntries(sessions), user: Object.fromEntries(userSessions) }, 0o600); } catch { /* ignore */ }
@@ -281,9 +285,87 @@ function normalizePgBase(raw) {
   do { prev = s; s = s.replace(/\/(dashboard|api)$/i, '').replace(/\/+$/, ''); } while (s !== prev);
   return s;
 }
-function pgBase() {
-  return normalizePgBase(config.pgBaseUrl);
+/* ───────────────── پنل‌های پاسارگارد (چندپنلی) ─────────────────
+   هر پنل: {id, name(اسمی که مشتری موقع خرید می‌بیند), pricePerGB, enabled(قابل خرید),
+   baseUrl, publicBaseUrl, apiKey, username, password, groupIds}
+   سفارش روی پنلی ساخته می‌شود که مشتری موقع خرید انتخاب کرده (order.panelId).
+   تنظیمات قدیمیِ تک‌پنله (pgBaseUrl و…) خودکار به «پنل اصلی» تبدیل و برای سازگاری
+   با بکاپ‌های قدیمی با پنل اول همگام نگه داشته می‌شوند. */
+const newPanelId = () => 'pn_' + crypto.randomBytes(4).toString('hex');
+const cleanGroupIds = (v) => (Array.isArray(v) ? v.map(Number).filter((n) => Number.isFinite(n) && n > 0) : []);
+const cleanPrice = (v, fallback) => {
+  const n = Math.round(Number(v));
+  return Number.isFinite(n) && n >= 0 && n <= 10_000_000 ? n : fallback;
+};
+function sanitizePanel(raw, cur = null) {
+  const b = raw && typeof raw === 'object' ? raw : {};
+  return {
+    id: cur?.id || newPanelId(),
+    name: cleanStr(b.name !== undefined ? b.name : cur?.name, 60),
+    pricePerGB: cleanPrice(b.pricePerGB, cur?.pricePerGB ?? config.pricePerGB ?? 4000),
+    enabled: b.enabled !== undefined ? !!b.enabled : cur ? !!cur.enabled : true,
+    baseUrl: normalizePgBase(cleanStr(b.baseUrl !== undefined ? b.baseUrl : cur?.baseUrl, 200)),
+    publicBaseUrl: normalizePgBase(cleanStr(b.publicBaseUrl !== undefined ? b.publicBaseUrl : cur?.publicBaseUrl, 200)),
+    apiKey: b.apiKey ? cleanStr(b.apiKey, 300) : cur?.apiKey || '',
+    username: cleanStr(b.username !== undefined ? b.username : cur?.username, 120),
+    password: b.password ? String(b.password).slice(0, 300) : cur?.password || '',
+    groupIds: b.groupIds !== undefined ? cleanGroupIds(b.groupIds) : cleanGroupIds(cur?.groupIds),
+  };
 }
+const panelsOf = () => (Array.isArray(config.panels) ? config.panels : []);
+const panelById = (id) => panelsOf().find((p) => p.id === id) || null;
+const defaultPanel = () => panelsOf().find((p) => p.enabled) || panelsOf()[0] || null;
+const panelPrice = (p) => (p && Number(p.pricePerGB) > 0 ? Number(p.pricePerGB) : config.pricePerGB || 4000);
+/* پنل‌هایی که به مشتری برای خرید پیشنهاد می‌شوند (فعال + دارای آدرس) */
+const salePanels = () => {
+  const list = panelsOf().filter((p) => p.enabled && normalizePgBase(p.baseUrl));
+  return list.length ? list : panelsOf().filter((p) => p.enabled);
+};
+/* پنل مربوط به یک سفارش؛ سفارش‌های قدیمی (بدون panelId) روی پنل اول‌اند */
+const panelForOrder = (o) => panelById(o?.panelId) || panelById(o?.pg?.panelId) || panelsOf()[0] || null;
+const panelNameOf = (o) => panelForOrder(o)?.name || o?.panelName || '';
+/* همگام‌سازی دوسویه با فیلدهای قدیمی تک‌پنله (برای بکاپ/راه‌اندازی قدیمی) */
+function syncLegacyFromFirstPanel() {
+  const p0 = panelsOf()[0];
+  if (!p0) return;
+  config.pgBaseUrl = p0.baseUrl; config.pgPublicBaseUrl = p0.publicBaseUrl;
+  config.pgApiKey = p0.apiKey; config.pgUsername = p0.username;
+  config.pgPassword = p0.password; config.pgGroupIds = p0.groupIds;
+}
+function syncFirstPanelFromLegacy() {
+  const p0 = panelsOf()[0];
+  if (!p0) return;
+  p0.baseUrl = config.pgBaseUrl || ''; p0.publicBaseUrl = config.pgPublicBaseUrl || '';
+  p0.apiKey = config.pgApiKey || ''; p0.username = config.pgUsername || '';
+  p0.password = config.pgPassword || ''; p0.groupIds = cleanGroupIds(config.pgGroupIds);
+}
+function ensurePanels() {
+  if (!Array.isArray(config.panels) || !config.panels.length) {
+    config.panels = [sanitizePanel({
+      name: 'پنل اصلی', pricePerGB: config.pricePerGB, enabled: true,
+      baseUrl: config.pgBaseUrl, publicBaseUrl: config.pgPublicBaseUrl,
+      apiKey: config.pgApiKey, username: config.pgUsername,
+      password: config.pgPassword, groupIds: config.pgGroupIds,
+    })];
+    config.panels[0].id = 'pn_main';
+    saveConfig();
+  } else {
+    config.panels = config.panels.map((p) => sanitizePanel(p, p));
+  }
+}
+const publicPanel = (p) => ({ id: p.id, name: p.name, pricePerGB: panelPrice(p) });
+const adminPanelView = (p) => ({
+  id: p.id, name: p.name, pricePerGB: panelPrice(p), enabled: !!p.enabled,
+  baseUrl: p.baseUrl || '', publicBaseUrl: p.publicBaseUrl || '',
+  username: p.username || '', groupIds: cleanGroupIds(p.groupIds),
+  hasApiKey: !!p.apiKey, apiKeyMasked: p.apiKey ? `••••••••${String(p.apiKey).slice(-4)}` : '',
+  hasPassword: !!p.password,
+  ordersCount: orders.filter((o) => (o.panelId || o.pg?.panelId) === p.id).length,
+});
+function pgBase(panel) {
+  return normalizePgBase(panel?.baseUrl || '');
+}
+ensurePanels();
 /* حمل‌ونقل HTTP(S) اختصاصی پاسارگارد (بدون وابستگی):
    تلاش اول با بررسی کامل گواهی TLS؛ اگر گواهی پنل self-signed باشد
    (در پنل‌های روی پورت ۸۰۰۰ بسیار رایج است) یک بار بدون بررسی گواهی
@@ -294,7 +376,7 @@ const PG_CERT_ERR_CODES = new Set([
   'UNABLE_TO_GET_ISSUER_CERT', 'CERT_HAS_EXPIRED', 'CERT_UNTRUSTED',
   'ERR_TLS_CERT_ALTNAME_INVALID', 'INVALID_CA',
 ]);
-let pgInsecureTls = false;
+const pgInsecureHosts = new Set(); // مبدأهایی با گواهی self-signed (جدا برای هر پنل)
 function pgHttpOnce(url, { method, headers, payload, insecure }) {
   return new Promise((resolve, reject) => {
     const isHttps = url.protocol === 'https:';
@@ -325,11 +407,11 @@ async function pgRequest(url, { method, headers, payload }) {
   for (let hop = 0; hop <= 3; hop++) {
     let out;
     try {
-      out = await pgHttpOnce(target, { method: m, headers, payload: pl, insecure: pgInsecureTls });
+      out = await pgHttpOnce(target, { method: m, headers, payload: pl, insecure: pgInsecureHosts.has(target.origin) });
     } catch (e) {
       const code = e.code || e.cause?.code || '';
-      if (target.protocol === 'https:' && !pgInsecureTls && PG_CERT_ERR_CODES.has(code)) {
-        pgInsecureTls = true;
+      if (target.protocol === 'https:' && !pgInsecureHosts.has(target.origin) && PG_CERT_ERR_CODES.has(code)) {
+        pgInsecureHosts.add(target.origin);
         console.warn(`[norkhiz] Pasarguard TLS certificate cannot be verified (${code}) — retrying without verification (self-signed panel certificate).`);
         out = await pgHttpOnce(target, { method: m, headers, payload: pl, insecure: true });
       } else {
@@ -360,14 +442,15 @@ function pgNetErrorFa(e) {
 /* ── ورود با نام کاربری/رمز پنل (جایگزین کلید API، مناسب پنل نمایندگی) ──
    POST /api/admin/token با فرم یوزر/پسورد → access_token (JWT، معمولاً ۲۴ساعته).
    توکن فقط در حافظه کش می‌شود؛ با خطای 401 یک بار ورود تازه انجام می‌شود. */
-let pgJwtCache = { key: '', token: '', exp: 0 };
-const pgUseJwt = () => !config.pgApiKey && !!(config.pgUsername && config.pgPassword);
-async function pgGetJwt(force = false) {
-  const ck = pgBase() + '|' + config.pgUsername + '|' +
-    crypto.createHash('sha256').update(String(config.pgPassword || '')).digest('hex').slice(0, 16);
-  if (!force && pgJwtCache.token && pgJwtCache.key === ck && Date.now() < pgJwtCache.exp) return pgJwtCache.token;
-  const payload = new URLSearchParams({ username: String(config.pgUsername), password: String(config.pgPassword) }).toString();
-  const res = await pgRequest(new URL(pgBase() + '/api/admin/token'), {
+const pgJwtCaches = new Map(); // panelId -> {key, token, exp}
+const pgUseJwt = (panel) => !!panel && !panel.apiKey && !!(panel.username && panel.password);
+async function pgGetJwt(panel, force = false) {
+  const ck = pgBase(panel) + '|' + panel.username + '|' +
+    crypto.createHash('sha256').update(String(panel.password || '')).digest('hex').slice(0, 16);
+  const cache = pgJwtCaches.get(panel.id) || { key: '', token: '', exp: 0 };
+  if (!force && cache.token && cache.key === ck && Date.now() < cache.exp) return cache.token;
+  const payload = new URLSearchParams({ username: String(panel.username), password: String(panel.password) }).toString();
+  const res = await pgRequest(new URL(pgBase(panel) + '/api/admin/token'), {
     method: 'POST',
     payload,
     headers: { 'Content-Type': 'application/x-www-form-urlencoded', 'Accept': 'application/json', 'Content-Length': Buffer.byteLength(payload) },
@@ -386,14 +469,14 @@ async function pgGetJwt(force = false) {
     const p = JSON.parse(Buffer.from(String(data.access_token).split('.')[1] || '', 'base64url').toString('utf8'));
     if (p?.exp) exp = p.exp * 1000 - 60_000;
   } catch { /* ignore */ }
-  pgJwtCache = { key: ck, token: data.access_token, exp };
+  pgJwtCaches.set(panel.id, { key: ck, token: data.access_token, exp });
   return data.access_token;
 }
-async function pgFetch(pathname, { method = 'GET', body, query } = {}) {
-  const base = pgBase();
-  const useJwt = pgUseJwt();
-  if (!base || (!config.pgApiKey && !useJwt))
-    throw new Error('اتصال پاسارگارد تنظیم نشده است (آدرس پنل و کلید API — یا نام کاربری/رمز پنل — لازم است)');
+async function pgFetch(panel, pathname, { method = 'GET', body, query } = {}) {
+  const base = pgBase(panel);
+  const useJwt = pgUseJwt(panel);
+  if (!panel || !base || (!panel.apiKey && !useJwt))
+    throw new Error(`اتصال پاسارگارد${panel?.name ? ` (${panel.name})` : ''} تنظیم نشده است (آدرس پنل و کلید API — یا نام کاربری/رمز پنل — لازم است)`);
   const url = new URL(base + pathname);
   if (query) for (const [k, v] of Object.entries(query)) if (v !== undefined) url.searchParams.set(k, String(v));
   const payload = body ? JSON.stringify(body) : undefined;
@@ -401,15 +484,15 @@ async function pgFetch(pathname, { method = 'GET', body, query } = {}) {
     method,
     payload,
     headers: {
-      ...(config.pgApiKey ? { 'X-API-Key': config.pgApiKey } : { 'Authorization': `Bearer ${token}` }),
+      ...(panel.apiKey ? { 'X-API-Key': panel.apiKey } : { 'Authorization': `Bearer ${token}` }),
       'Accept': 'application/json',
       ...(payload ? { 'Content-Type': 'application/json', 'Content-Length': Buffer.byteLength(payload) } : {}),
     },
   });
   let res;
   try {
-    res = await call(useJwt ? await pgGetJwt() : null);
-    if (useJwt && res.status === 401) res = await call(await pgGetJwt(true)); // توکن منقضی شده؛ ورود تازه و یک تلاش دیگر
+    res = await call(useJwt ? await pgGetJwt(panel) : null);
+    if (useJwt && res.status === 401) res = await call(await pgGetJwt(panel, true)); // توکن منقضی شده؛ ورود تازه و یک تلاش دیگر
   } catch (e) {
     if (e.pgFinal) throw e;
     throw new Error(pgNetErrorFa(e));
@@ -436,59 +519,76 @@ async function pgFetch(pathname, { method = 'GET', body, query } = {}) {
 }
 /* لینک اشتراک را مطلق می‌کند؛ اگر «آدرس عمومی» تنظیم شده باشد (مثلاً API با IP
    صدا زده می‌شود ولی لینک مشتری باید با دامنه باشد) مبدأ لینک با آن جایگزین می‌شود. */
-const absolutize = (u) => {
+const absolutize = (panel, u) => {
   if (!u) return '';
   try {
-    const abs = new URL(u, pgBase() + '/');
-    const pub = normalizePgBase(config.pgPublicBaseUrl);
-    if (pub && abs.hostname === new URL(pgBase() + '/').hostname)
+    const base = pgBase(panel);
+    const abs = new URL(u, base + '/');
+    const pub = normalizePgBase(panel?.publicBaseUrl);
+    if (pub && abs.hostname === new URL(base + '/').hostname)
       return new URL(abs.pathname + abs.search + abs.hash, pub + '/').toString();
     return abs.toString();
   } catch { return u; }
 };
-async function pgAllGroupIds() {
-  const data = await pgFetch('/api/groups/simple', { query: { all: true } });
+async function pgAllGroupIds(panel) {
+  const data = await pgFetch(panel, '/api/groups/simple', { query: { all: true } });
   return (data?.groups || []).map((g) => g.id);
 }
-async function pgCreateUser(order) {
-  const groupIds = Array.isArray(config.pgGroupIds) && config.pgGroupIds.length
-    ? config.pgGroupIds
-    : await pgAllGroupIds();
-  const username = 'vx_' + order.code.replace(/^(NK|VX)-/, '').toLowerCase();
+const pgUsernameFor = (order) => 'vx_' + order.code.replace(/^(NK|VX)-/, '').toLowerCase();
+/* ساخت کاربر اشتراک روی یک پنل مشخص؛ opts برای انتقال بین پنل‌ها (حجم/روز دلخواه) است */
+async function pgCreateUser(panel, order, opts = {}) {
+  if (!panel) throw new Error('هیچ پنل پاسارگاردی تنظیم نشده است');
+  const groupIds = Array.isArray(panel.groupIds) && panel.groupIds.length
+    ? panel.groupIds
+    : await pgAllGroupIds(panel);
+  const username = pgUsernameFor(order);
+  const gb = Number(opts.gb ?? order.gb);
+  const days = Number(opts.days ?? order.days ?? config.planDays);
   const payload = {
     username,
-    data_limit: Math.round(order.gb) * 1024 ** 3,
-    expire: Math.floor(Date.now() / 1000) + (order.days || config.planDays) * 86400,
+    data_limit: Math.round(gb * 1024 ** 3),
+    expire: Math.floor(Date.now() / 1000) + Math.round(days) * 86400,
     status: 'active',
     group_ids: groupIds,
-    note: `VortexNet | ${order.code} | ${order.gb}GB | ${order.username ? '@' + order.username : order.name || ''}${order.last4 ? ' | card..' + order.last4 : ''}`,
+    note: `VortexNet | ${order.code} | ${gb}GB | ${order.username ? '@' + order.username : order.name || ''}${order.last4 ? ' | card..' + order.last4 : ''}${opts.noteSuffix || ''}`,
   };
+  const pack = (user) => ({
+    userId: user.id, username: user.username || username,
+    subUrl: absolutize(panel, user.subscription_url),
+    expire: user.expire ?? payload.expire,
+    panelId: panel.id, dataLimit: payload.data_limit, disabledByUser: false, lastUsage: null,
+  });
   try {
-    const user = await pgFetch('/api/user', { method: 'POST', body: payload });
-    return { userId: user.id, username: user.username || username, subUrl: absolutize(user.subscription_url), expire: user.expire ?? payload.expire };
+    return pack(await pgFetch(panel, '/api/user', { method: 'POST', body: payload }));
   } catch (e) {
     if (e.status === 409) {
-      // نام کاربری قبلاً ساخته شده (مثلاً تأیید دوباره) → همان را تحویل بگیر
-      const user = await pgFetch(`/api/user/${encodeURIComponent(username)}`);
-      return { userId: user.id, username: user.username || username, subUrl: absolutize(user.subscription_url), expire: user.expire ?? payload.expire };
+      // نام کاربری روی این پنل هست (تأیید دوباره یا انتقال نیمه‌کارهٔ قبلی)
+      const cur = await pgFetch(panel, `/api/user/${encodeURIComponent(username)}`);
+      if (opts.relimit) {
+        // موقع انتقال: حجم/انقضای موجود را دقیقاً به مقادیر انتقال تنظیم کن
+        return pack(await pgModifyUser(panel, username, { data_limit: payload.data_limit, expire: payload.expire, status: 'active' }, cur));
+      }
+      return pack(cur);
     }
     throw e;
   }
 }
 
 /* وضعیت زندهٔ اشتراک (مصرف/انقضا) از پاسارگارد — با کش کوتاه */
-const pgUserCache = new Map(); // username -> {at, data}
-async function pgGetUserCached(username) {
-  const hit = pgUserCache.get(username);
+const pgUserCache = new Map(); // panelId:username -> {at, data}
+async function pgGetUserCached(panel, username) {
+  const key = `${panel?.id || ''}:${username}`;
+  const hit = pgUserCache.get(key);
   if (hit && Date.now() - hit.at < 15_000) return hit.data;
-  const data = await pgFetch(`/api/user/${encodeURIComponent(username)}`);
-  pgUserCache.set(username, { at: Date.now(), data });
+  const data = await pgFetch(panel, `/api/user/${encodeURIComponent(username)}`);
+  pgUserCache.set(key, { at: Date.now(), data });
   return data;
 }
+const pgUserCacheDel = (panel, username) => pgUserCache.delete(`${panel?.id || ''}:${username}`);
 /* تغییر کاربر پنل با حفظ بقیهٔ مشخصات فعلی (امن در برابر PUT جایگزینی کامل).
    اول مسیر نام کاربری؛ اگر پنل نداشت (404/405) مسیر by-id امتحان می‌شود. */
-async function pgModifyUser(username, patch, known) {
-  const cur = known || await pgFetch(`/api/user/${encodeURIComponent(username)}`);
+async function pgModifyUser(panel, username, patch, known) {
+  const cur = known || await pgFetch(panel, `/api/user/${encodeURIComponent(username)}`);
   const body = {
     data_limit: patch.data_limit ?? cur.data_limit,
     expire: patch.expire ?? toEpochSec(cur.expire) ?? cur.expire,
@@ -498,54 +598,108 @@ async function pgModifyUser(username, patch, known) {
   if (Array.isArray(cur.group_ids)) body.group_ids = cur.group_ids;
   let updated = null;
   try {
-    updated = await pgFetch(`/api/user/${encodeURIComponent(username)}`, { method: 'PUT', body });
+    updated = await pgFetch(panel, `/api/user/${encodeURIComponent(username)}`, { method: 'PUT', body });
   } catch (e) {
     if ((e.status === 404 || e.status === 405) && cur.id)
-      updated = await pgFetch(`/api/user/by-id/${encodeURIComponent(cur.id)}`, { method: 'PUT', body });
+      updated = await pgFetch(panel, `/api/user/by-id/${encodeURIComponent(cur.id)}`, { method: 'PUT', body });
     else throw e;
   }
-  pgUserCache.delete(username);
+  pgUserCacheDel(panel, username);
   if (!updated || typeof updated !== 'object' || !updated.username)
-    updated = await pgFetch(`/api/user/${encodeURIComponent(username)}`);
+    updated = await pgFetch(panel, `/api/user/${encodeURIComponent(username)}`);
   return updated;
 }
 /* تغییر لینک اشتراک: لینک قبلی باطل و لینک تازه ساخته می‌شود؛ کاربر تازه برگردانده می‌شود */
-async function pgRevokeSub(username, userId) {
+async function pgRevokeSub(panel, username, userId) {
   try {
-    await pgFetch(`/api/user/${encodeURIComponent(username)}/revoke_sub`, { method: 'POST' });
+    await pgFetch(panel, `/api/user/${encodeURIComponent(username)}/revoke_sub`, { method: 'POST' });
   } catch (e) {
     if ((e.status === 404 || e.status === 405) && userId)
-      await pgFetch(`/api/user/by-id/${encodeURIComponent(userId)}/revoke_sub`, { method: 'POST' });
+      await pgFetch(panel, `/api/user/by-id/${encodeURIComponent(userId)}/revoke_sub`, { method: 'POST' });
     else throw e;
   }
-  pgUserCache.delete(username);
-  return pgFetch(`/api/user/${encodeURIComponent(username)}`);
+  pgUserCacheDel(panel, username);
+  return pgFetch(panel, `/api/user/${encodeURIComponent(username)}`);
 }
 async function serviceOf(order) {
+  const panel = panelForOrder(order);
   const base = {
     code: order.code, gb: order.gb, days: order.days,
+    panelId: panel?.id || order.panelId || '', panelName: panel?.name || order.panelName || '',
     username: order.pg?.username || '',
     subUrl: order.pg?.subUrl || '',
     status: order.pg?.disabledByUser ? 'disabled' : 'active', live: false,
     disabledByUser: !!order.pg?.disabledByUser,
-    usedTraffic: null, dataLimit: Math.round(order.gb) * 1024 ** 3,
-    expire: toEpochSec(order.pg?.expire), fetchedAt: null,
+    usedTraffic: order.pg?.lastUsage?.usedTraffic ?? null,
+    dataLimit: order.pg?.lastUsage?.dataLimit || order.pg?.dataLimit || Math.round(order.gb) * 1024 ** 3,
+    expire: toEpochSec(order.pg?.lastUsage?.expire) ?? toEpochSec(order.pg?.expire),
+    fetchedAt: order.pg?.lastUsage?.at || null,
   };
-  if (!base.username) return base;
+  if (!base.username || !panel) return base;
   try {
-    const u = await pgGetUserCached(base.username);
-    return {
+    const u = await pgGetUserCached(panel, base.username);
+    const live = {
       ...base, live: true, fetchedAt: nowISO(),
       status: u.status || base.status,
       usedTraffic: Number.isFinite(Number(u.used_traffic)) ? Number(u.used_traffic) : null,
       dataLimit: Number.isFinite(Number(u.data_limit)) && Number(u.data_limit) > 0 ? Number(u.data_limit) : base.dataLimit,
       expire: toEpochSec(u.expire) ?? base.expire,
-      subUrl: absolutize(u.subscription_url) || base.subUrl,
+      subUrl: absolutize(panel, u.subscription_url) || base.subUrl,
     };
+    /* آخرین مصرف را روی سفارش ذخیره کن تا اگر روزی پنل قطع شد، «انتقال به پنل دیگر»
+       بتواند حجم و زمان باقی‌مانده را از همین آخرین اطلاعات حساب کند */
+    const prev = order.pg.lastUsage;
+    if (!prev || prev.usedTraffic !== live.usedTraffic || prev.dataLimit !== live.dataLimit ||
+        prev.expire !== live.expire || Date.now() - Date.parse(prev.at || 0) > 120_000) {
+      order.pg.lastUsage = {
+        usedTraffic: live.usedTraffic, dataLimit: live.dataLimit,
+        expire: live.expire, status: live.status, at: live.fetchedAt,
+      };
+      if (live.expire) order.pg.expire = live.expire;
+      if (live.dataLimit) order.pg.dataLimit = live.dataLimit;
+      saveOrders();
+    }
+    return live;
   } catch { return base; }
+}
+/* حجم/زمان باقی‌ماندهٔ یک اشتراک: اول زنده از پنل؛ نشد از آخرین مصرف ذخیره‌شده؛ نشد حجم اصلی خرید.
+   مبنای پیش‌فرض «انتقال به پنل دیگر» است (ادمین قبل از تأیید می‌تواند عوضش کند). */
+async function computeRemaining(order) {
+  const panel = panelForOrder(order);
+  const GIB = 1024 ** 3;
+  const now = Math.floor(Date.now() / 1000);
+  let used = null, limit = null, expire = null, source = 'original';
+  const lu = order.pg?.lastUsage;
+  if (panel && order.pg?.username) {
+    try {
+      const u = await pgFetch(panel, `/api/user/${encodeURIComponent(order.pg.username)}`);
+      if (Number.isFinite(Number(u.used_traffic))) used = Number(u.used_traffic);
+      if (Number.isFinite(Number(u.data_limit)) && Number(u.data_limit) > 0) limit = Number(u.data_limit);
+      expire = toEpochSec(u.expire);
+      source = 'live';
+    } catch { /* پنل در دسترس نیست؛ از آخرین اطلاعات ذخیره‌شده استفاده می‌شود */ }
+  }
+  if ((used == null || limit == null || expire == null) && lu) {
+    if (used == null && Number.isFinite(Number(lu.usedTraffic))) used = Number(lu.usedTraffic);
+    if (limit == null && Number.isFinite(Number(lu.dataLimit)) && Number(lu.dataLimit) > 0) limit = Number(lu.dataLimit);
+    if (expire == null) expire = toEpochSec(lu.expire);
+    if (source === 'original' && (used != null || limit != null)) source = 'cached';
+  }
+  if (limit == null) limit = order.pg?.dataLimit || Math.round(order.gb) * GIB;
+  if (expire == null) expire = toEpochSec(order.pg?.expire);
+  const remainBytes = used == null ? limit : Math.max(0, limit - used);
+  return {
+    fromPanelId: panel?.id || '', fromPanelName: panel?.name || order.panelName || '',
+    usedGB: used == null ? null : Math.round((used / GIB) * 100) / 100,
+    totalGB: Math.round((limit / GIB) * 100) / 100,
+    remainGB: Math.round((remainBytes / GIB) * 10) / 10,
+    remainDays: expire ? Math.max(1, Math.ceil((expire - now) / 86400)) : (order.days || config.planDays),
+    expire: expire || null, source, lastUsageAt: lu?.at || null,
+  };
 }
 const publicOrder = (o) => ({
   code: o.code, gb: o.gb, days: o.days, price: o.price, status: o.status,
+  panelName: panelNameOf(o),
   discountCode: o.discountCode || '', discountAmount: o.discountAmount || 0,
   createdAt: o.createdAt, decidedAt: o.decidedAt,
   rejectReason: o.status === 'rejected' ? o.rejectReason || '' : '',
@@ -571,11 +725,12 @@ async function readBody(req, maxBytes = 64 * 1024) {
   return JSON.parse(Buffer.concat(chunks).toString('utf8'));
 }
 const publicConfig = () => ({
-  pricePerGB: config.pricePerGB,
+  pricePerGB: panelPrice(defaultPanel()),
   planDays: config.planDays,
   minGB: config.minGB,
   cardNumber: config.cardNumber,
   cardName: config.cardName,
+  panels: salePanels().map(publicPanel),
 });
 const findOrder = (code) => orders.find((o) => o.code === String(code || '').trim().toUpperCase());
 
@@ -611,7 +766,7 @@ function cleanCommentText(s) {
 }
 
 /* ───────────────────────── بکاپ کامل فروشگاه ───────────────────────── */
-const BACKUP_FILES = ['config.json', 'orders.json', 'users.json', 'chats.json', 'sessions.json', 'discounts.json', 'announcements.json', 'comments.json'];
+const BACKUP_FILES = ['config.json', 'orders.json', 'users.json', 'chats.json', 'sessions.json', 'discounts.json', 'announcements.json', 'comments.json', 'reports.json'];
 function currentBackupObject() {
   return {
     app: 'vortexnet', kind: 'shop-backup', version: 1, exportedAt: nowISO(),
@@ -624,6 +779,7 @@ function currentBackupObject() {
       'discounts.json': discounts,
       'announcements.json': announcements,
       'comments.json': comments,
+      'reports.json': serviceReports,
     },
   };
 }
@@ -639,6 +795,7 @@ function applyBackupObject(b, keepAdminToken, keepAdminExp) {
     'discounts.json': (v) => Array.isArray(v),
     'announcements.json': (v) => Array.isArray(v),
     'comments.json': (v) => Array.isArray(v),
+    'reports.json': (v) => Array.isArray(v),
   };
   const present = BACKUP_FILES.filter((n) => files[n] !== undefined);
   if (!present.length || !present.every((n) => shapeOk[n](files[n]))) return null;
@@ -651,12 +808,14 @@ function applyBackupObject(b, keepAdminToken, keepAdminExp) {
   /* نوشتن فایل‌های واردشده و بارگذاری دوباره در حافظه */
   for (const n of present) saveJson(path.join(DATA_DIR, n), files[n], 0o600);
   if (files['config.json']) config = { ...DEFAULT_CONFIG, ...files['config.json'] };
+  ensurePanels();
   if (files['orders.json']) orders = files['orders.json'];
   if (files['users.json']) users = files['users.json'];
   if (files['chats.json']) chats = files['chats.json'];
   if (files['discounts.json']) discounts = files['discounts.json'];
   if (files['announcements.json']) announcements = files['announcements.json'];
   if (files['comments.json']) comments = files['comments.json'];
+  if (files['reports.json']) serviceReports = files['reports.json'];
   if (files['sessions.json']) {
     sessions.clear(); userSessions.clear();
     for (const [tok, exp] of Object.entries(files['sessions.json'].admin || {})) if (exp > Date.now()) sessions.set(tok, exp);
@@ -664,7 +823,7 @@ function applyBackupObject(b, keepAdminToken, keepAdminExp) {
   }
   if (keepAdminToken) sessions.set(keepAdminToken, keepAdminExp || Date.now() + 7 * 86400_000);
   saveSessions();
-  pgJwtCache = { key: '', token: '', exp: 0 };
+  pgJwtCaches.clear();
   pgUserCache.clear();
   return { imported: present, safetyBackup: `backups/${safetyName}` };
 }
@@ -826,7 +985,10 @@ const server = http.createServer(async (req, res) => {
       const gb = Math.round(Number(b.gb));
       if (!Number.isFinite(gb) || gb < config.minGB || gb > 5000)
         return sendJson(res, 400, { error: `حجم باید حداقل ${config.minGB} گیگ باشد` });
-      const originalPrice = gb * config.pricePerGB;
+      const panel = b.panelId ? panelById(b.panelId) : defaultPanel();
+      if (b.panelId && (!panel || !panel.enabled))
+        return sendJson(res, 400, { error: 'این پنل الان قابل خرید نیست؛ یک پنل دیگر انتخاب کن' });
+      const originalPrice = gb * panelPrice(panel);
       const v = checkDiscount(b.code, user, originalPrice);
       if (!v.ok) return sendJson(res, 400, { error: v.error });
       return sendJson(res, 200, {
@@ -873,7 +1035,12 @@ const server = http.createServer(async (req, res) => {
         /* خرید فقط با حساب کاربری */
         return sendJson(res, 401, { error: 'برای ثبت خرید اول وارد حساب شو یا ثبت‌نام کن', needAuth: true });
       }
-      const originalPrice = gb * config.pricePerGB;
+      const panel = b.panelId ? panelById(b.panelId) : defaultPanel();
+      if (!panel)
+        return sendJson(res, 400, { error: 'الان هیچ پنلی برای خرید فعال نیست؛ کمی بعد دوباره امتحان کن یا به پشتیبانی پیام بده' });
+      if (b.panelId && !panel.enabled)
+        return sendJson(res, 400, { error: 'این پنل الان قابل خرید نیست؛ یک پنل دیگر انتخاب کن' });
+      const originalPrice = gb * panelPrice(panel);
       let discountCode = '', discountAmount = 0, discountId = '';
       if (String(b.discountCode || '').trim()) {
         const v = checkDiscount(b.discountCode, user, originalPrice);
@@ -886,6 +1053,7 @@ const server = http.createServer(async (req, res) => {
         code: newOrderCode(),
         gb, days: config.planDays,
         price: originalPrice - discountAmount,
+        panelId: panel.id, panelName: panel.name, pricePerGB: panelPrice(panel),
         discountCode, discountId, discountAmount,
         ...fields,
         status: 'pending',
@@ -895,7 +1063,7 @@ const server = http.createServer(async (req, res) => {
       };
       orders.unshift(order);
       saveOrders();
-      return sendJson(res, 201, { code: order.code, gb: order.gb, price: order.price, days: order.days, discountCode: order.discountCode, discountAmount: order.discountAmount });
+      return sendJson(res, 201, { code: order.code, gb: order.gb, price: order.price, days: order.days, panelName: order.panelName, discountCode: order.discountCode, discountAmount: order.discountAmount });
     }
 
     /* ── پنل کاربری: سفارشات + سرویس من + چت ── */
@@ -908,7 +1076,9 @@ const server = http.createServer(async (req, res) => {
       }
       if (req.method === 'GET' && p === '/api/my/services') {
         const mine = orders.filter((o) => o.userId === user.id && o.status === 'approved' && o.pg);
-        return sendJson(res, 200, { services: await Promise.all(mine.map(serviceOf)) });
+        const services = await Promise.all(mine.map(serviceOf));
+        for (const s of services) s.reportOpen = serviceReports.some((r) => r.code === s.code && r.status === 'open');
+        return sendJson(res, 200, { services });
       }
       if (req.method === 'GET' && p === '/api/my/comments') {
         return sendJson(res, 200, { comments: comments.filter((c) => c.userId === user.id).slice(0, 30).map((c) => ({ id: c.id, text: c.text, status: c.status, createdAt: c.createdAt })) });
@@ -949,34 +1119,59 @@ const server = http.createServer(async (req, res) => {
         if (!order) return sendJson(res, 404, { error: 'اشتراک پیدا نشد' });
         const b = await readBody(req);
         const username = order.pg.username;
+        const panel = panelForOrder(order);
         try {
           if (svcMatch[2] === 'extend-time') {
             const days = Math.floor(Number(b.days));
             if (!Number.isFinite(days) || days < 1 || days > 365)
               return sendJson(res, 400, { error: 'عدد روزهای تمدید بین ۱ تا ۳۶۵ باشد' });
-            const cur = await pgFetch(`/api/user/${encodeURIComponent(username)}`);
+            const cur = await pgFetch(panel, `/api/user/${encodeURIComponent(username)}`);
             const curExp = toEpochSec(cur.expire);
             if (!curExp) return sendJson(res, 400, { error: 'این اشتراک انقضای زمانی ندارد' });
             const newExp = Math.max(curExp, Math.floor(Date.now() / 1000)) + days * 86400;
-            await pgModifyUser(username, { expire: newExp }, cur);
+            await pgModifyUser(panel, username, { expire: newExp }, cur);
             order.pg.expire = newExp;
             saveOrders();
           } else if (svcMatch[2] === 'toggle') {
             const on = b.on === true;
-            await pgModifyUser(username, { status: on ? 'active' : 'disabled' });
+            await pgModifyUser(panel, username, { status: on ? 'active' : 'disabled' });
             order.pg.disabledByUser = !on;
             saveOrders();
           } else { // revoke-sub
             if (rateLimited(`svc-revoke:${user.id}`, 5, 3600_000))
               return sendJson(res, 429, { error: 'تغییر لینک را زیاد انجام دادی؛ یک ساعت دیگر امتحان کن' });
-            const fresh = await pgRevokeSub(username, order.pg.userId);
-            if (fresh?.subscription_url) order.pg.subUrl = absolutize(fresh.subscription_url);
+            const fresh = await pgRevokeSub(panel, username, order.pg.userId);
+            if (fresh?.subscription_url) order.pg.subUrl = absolutize(panel, fresh.subscription_url);
             saveOrders();
           }
         } catch (e) {
           return sendJson(res, 502, { error: 'در ارتباط با سرور اشتراک مشکلی پیش آمد؛ چند دقیقه دیگر دوباره تلاش کن یا به پشتیبانی پیام بده' });
         }
         return sendJson(res, 200, { ok: true, service: await serviceOf(order) });
+      }
+
+      /* ── گزارش مشکل سرویس: در بخش «گزارش‌های سرویس» پنل مدیریت دیده می‌شود ── */
+      const repMatch = /^\/api\/my\/services\/([A-Za-z0-9-]+)\/report$/.exec(p);
+      if (req.method === 'POST' && repMatch) {
+        if (rateLimited(`svcreport:${user.id}`, 5, 3600_000))
+          return sendJson(res, 429, { error: 'چند گزارش فرستادی؛ کمی صبر کن تا بررسی بشن' });
+        const order = orders.find((o) => o.code === repMatch[1].toUpperCase() && o.userId === user.id && o.status === 'approved' && o.pg?.username);
+        if (!order) return sendJson(res, 404, { error: 'اشتراک پیدا نشد' });
+        const b = await readBody(req);
+        const text = cleanStr(b.text, 1000);
+        if (text.length < 5) return sendJson(res, 400, { error: 'مشکل رو یکم کامل‌تر بنویس (حداقل چند کلمه)' });
+        if (serviceReports.some((r) => r.code === order.code && r.status === 'open'))
+          return sendJson(res, 409, { error: 'برای این سرویس یک گزارش باز داری که در حال بررسی است 🙏' });
+        const panel = panelForOrder(order);
+        const r = {
+          id: 'r_' + crypto.randomBytes(6).toString('hex'),
+          code: order.code, userId: user.id, username: user.username,
+          panelId: panel?.id || '', panelName: panel?.name || order.panelName || '',
+          text, status: 'open', createdAt: nowISO(), resolvedAt: null,
+        };
+        serviceReports.unshift(r);
+        saveReports();
+        return sendJson(res, 201, { ok: true, report: { id: r.id, status: r.status, createdAt: r.createdAt } });
       }
       return sendJson(res, 404, { error: 'مسیر پیدا نشد' });
     }
@@ -1001,6 +1196,7 @@ const server = http.createServer(async (req, res) => {
         code: order.code, status: order.status, gb: order.gb, days: order.days, price: order.price,
         discountCode: order.discountCode || '', discountAmount: order.discountAmount || 0,
         createdAt: order.createdAt, decidedAt: order.decidedAt,
+        panelName: panelNameOf(order),
         rejectReason: order.status === 'rejected' ? order.rejectReason : '',
         subscriptionUrl: order.pg?.subUrl || '',
         username: order.pg?.username || '',
@@ -1022,6 +1218,8 @@ const server = http.createServer(async (req, res) => {
       if (b.pgApiKey) config.pgApiKey = cleanStr(b.pgApiKey, 200);
       if (b.pgUsername) config.pgUsername = cleanStr(b.pgUsername, 120);
       if (b.pgPassword) config.pgPassword = String(b.pgPassword).slice(0, 300);
+      ensurePanels();
+      syncFirstPanelFromLegacy();
       saveConfig();
       newSession(res);
       return sendJson(res, 200, { ok: true });
@@ -1062,8 +1260,9 @@ const server = http.createServer(async (req, res) => {
           users: users.length,
           chatsUnread: Object.values(chats).reduce((s, t) => s + unreadFor(t, 'admin'), 0),
           commentsPending: comments.filter((c) => c.status === 'pending').length,
+          reportsOpen: serviceReports.filter((r) => r.status === 'open').length,
         };
-        return sendJson(res, 200, { orders: list.slice(0, 300), counts });
+        return sendJson(res, 200, { orders: list.slice(0, 300).map((o) => ({ ...o, panelName: panelNameOf(o) })), counts });
       }
 
       /* ── کدهای تخفیف ── */
@@ -1196,7 +1395,9 @@ const server = http.createServer(async (req, res) => {
         if (order.status === 'rejected')
           return sendJson(res, 409, { error: 'سفارش رد شده را نمی‌توان تأیید کرد' });
         try {
-          const pg = await pgCreateUser(order);
+          const panel = panelForOrder(order) || defaultPanel();
+          if (panel && !order.panelId) { order.panelId = panel.id; order.panelName = panel.name; }
+          const pg = await pgCreateUser(panel, order);
           order.pg = pg;
           order.provisionError = null;
           order.status = 'approved';
@@ -1208,6 +1409,135 @@ const server = http.createServer(async (req, res) => {
           saveOrders();
           return sendJson(res, 502, { error: `خطا در ساخت کانفیگ: ${e.message}`, order });
         }
+      }
+
+      /* ── پنل‌های پاسارگارد (چندپنلی) ── */
+      if (req.method === 'GET' && p === '/api/admin/panels') {
+        return sendJson(res, 200, { panels: panelsOf().map(adminPanelView) });
+      }
+      if (req.method === 'POST' && p === '/api/admin/panels') {
+        const b = await readBody(req);
+        const panel = sanitizePanel(b);
+        if (!panel.name) return sendJson(res, 400, { error: 'برای پنل یک اسم بگذار (همان اسمی که مشتری موقع خرید می‌بیند)' });
+        config.panels = [...panelsOf(), panel];
+        syncLegacyFromFirstPanel();
+        saveConfig();
+        return sendJson(res, 201, { ok: true, panel: adminPanelView(panel) });
+      }
+      const panelMatch = /^\/api\/admin\/panels\/([A-Za-z0-9_-]+)\/(edit|toggle|delete)$/.exec(p);
+      if (req.method === 'POST' && panelMatch) {
+        const idx = panelsOf().findIndex((x) => x.id === panelMatch[1]);
+        if (idx < 0) return sendJson(res, 404, { error: 'پنل پیدا نشد' });
+        const act = panelMatch[2];
+        if (act === 'delete') {
+          if (panelsOf().length <= 1)
+            return sendJson(res, 409, { error: 'نمی‌توان تنها پنل فروشگاه را حذف کرد' });
+          const used = orders.some((o) => (o.panelId || o.pg?.panelId) === panelMatch[1] || (idx === 0 && !o.panelId && !o.pg?.panelId));
+          if (used)
+            return sendJson(res, 409, { error: 'این پنل سفارش/اشتراک دارد و حذف نمی‌شود؛ به‌جای حذف «غیرفعال»اش کن تا از خرید برداشته شود و سرویس‌هایش قابل انتقال بمانند' });
+          config.panels.splice(idx, 1);
+        } else if (act === 'toggle') {
+          config.panels[idx].enabled = !config.panels[idx].enabled;
+        } else { // edit
+          const b = await readBody(req);
+          const panel = sanitizePanel(b, config.panels[idx]);
+          if (!panel.name) return sendJson(res, 400, { error: 'اسم پنل نباید خالی باشد' });
+          config.panels[idx] = panel;
+        }
+        syncLegacyFromFirstPanel();
+        saveConfig();
+        return sendJson(res, 200, { ok: true, panels: panelsOf().map(adminPanelView) });
+      }
+
+      /* ── انتقال اشتراک بین پنل‌ها ── */
+      const migPrevMatch = /^\/api\/admin\/orders\/([A-Za-z0-9-]+)\/migrate-preview$/.exec(p);
+      if (req.method === 'GET' && migPrevMatch) {
+        const order = findOrder(migPrevMatch[1]);
+        if (!order || order.status !== 'approved' || !order.pg?.username)
+          return sendJson(res, 404, { error: 'اشتراک فعالی برای این سفارش پیدا نشد' });
+        const info = await computeRemaining(order);
+        return sendJson(res, 200, {
+          ok: true, ...info,
+          targets: panelsOf().filter((x) => x.id !== info.fromPanelId)
+            .map((x) => ({ id: x.id, name: x.name, enabled: !!x.enabled, hasUrl: !!normalizePgBase(x.baseUrl) })),
+        });
+      }
+      const migMatch = /^\/api\/admin\/orders\/([A-Za-z0-9-]+)\/migrate$/.exec(p);
+      if (req.method === 'POST' && migMatch) {
+        const order = findOrder(migMatch[1]);
+        if (!order || order.status !== 'approved' || !order.pg?.username)
+          return sendJson(res, 404, { error: 'اشتراک فعالی برای این سفارش پیدا نشد' });
+        const b = await readBody(req);
+        const target = panelById(b.toPanelId);
+        if (!target) return sendJson(res, 400, { error: 'پنل مقصد را انتخاب کن' });
+        const sourcePanel = panelForOrder(order);
+        if (sourcePanel && target.id === sourcePanel.id)
+          return sendJson(res, 400, { error: 'پنل مقصد همان پنل فعلی است؛ یک پنل دیگر انتخاب کن' });
+        if (!normalizePgBase(target.baseUrl))
+          return sendJson(res, 400, { error: 'آدرس پنل مقصد تنظیم نشده است' });
+        let gb = Number(b.gb), days = Math.floor(Number(b.days));
+        if (!Number.isFinite(gb) || !Number.isFinite(days)) {
+          const info = await computeRemaining(order);
+          if (!Number.isFinite(gb)) gb = info.remainGB;
+          if (!Number.isFinite(days)) days = info.remainDays;
+        }
+        if (!(gb > 0) || gb > 5000)
+          return sendJson(res, 400, { error: 'حجم انتقال باید بیشتر از صفر و حداکثر ۵۰۰۰ گیگ باشد (اگر حجم تمام شده، یک حجم دستی وارد کن)' });
+        if (!(days >= 1) || days > 3650)
+          return sendJson(res, 400, { error: 'روزهای انتقال باید بین ۱ تا ۳۶۵۰ باشد' });
+        gb = Math.round(gb * 10) / 10;
+        try {
+          const pg = await pgCreateUser(target, order, { gb, days, relimit: true, noteSuffix: ' | انتقال از پنل قبلی' });
+          const fromPanelId = sourcePanel?.id || '';
+          const fromPanelName = sourcePanel?.name || order.panelName || '';
+          const oldUsername = order.pg.username;
+          order.pg = pg;
+          order.panelId = target.id;
+          order.panelName = target.name;
+          order.provisionError = null;
+          /* کانفیگ روی پنل قبلی را (اگر در دسترس بود) خاموش کن تا دوبار مصرف نشود */
+          let sourceDisabled = false;
+          if (sourcePanel && normalizePgBase(sourcePanel.baseUrl)) {
+            try { await pgModifyUser(sourcePanel, oldUsername, { status: 'disabled' }); sourceDisabled = true; }
+            catch { /* پنل قبلی در دسترس نیست (همان دلیلی که داریم منتقل می‌کنیم) */ }
+          }
+          order.migrations = [...(Array.isArray(order.migrations) ? order.migrations : []), {
+            at: nowISO(), fromPanelId, fromPanelName, toPanelId: target.id, toPanelName: target.name,
+            gb, days, sourceDisabled,
+          }];
+          saveOrders();
+          /* گزارش باز این سرویس را «انجام‌شده» کن و به مشتری در چت خبر بده */
+          let reportsClosed = 0;
+          for (const r of serviceReports) if (r.code === order.code && r.status === 'open') { r.status = 'done'; r.resolvedAt = nowISO(); reportsClosed++; }
+          if (reportsClosed) saveReports();
+          const owner = order.userId ? findUserById(order.userId) : null;
+          if (owner) {
+            const thread = getThread(owner);
+            pushMessage(thread, 'admin', `سلام 🙏 اشتراکت (سفارش ${order.code}) به پنل «${target.name}» منتقل شد و لینک اشتراک جدید ساخته شد ✅\nحجم منتقل‌شده: ${gb} گیگ برای ${days} روز.\nلینک جدید رو از بخش «سرویس من» بردار و جایگزین لینک قبلی کن (لینک قبلی دیگر کار نمی‌کند):\n${pg.subUrl}`);
+            saveChats();
+          }
+          return sendJson(res, 200, { ok: true, order: { ...order, panelName: target.name }, sourceDisabled, reportsClosed });
+        } catch (e) {
+          return sendJson(res, 502, { error: `خطا در انتقال: ${e.message}` });
+        }
+      }
+
+      /* ── گزارش‌های مشکل سرویس ── */
+      if (req.method === 'GET' && p === '/api/admin/reports') {
+        const list = serviceReports.slice().sort((x, y) =>
+          ((x.status === 'open' ? 0 : 1) - (y.status === 'open' ? 0 : 1)) ||
+          String(y.createdAt).localeCompare(String(x.createdAt)));
+        return sendJson(res, 200, { reports: list.slice(0, 300), open: serviceReports.filter((r) => r.status === 'open').length });
+      }
+      const repAdminMatch = /^\/api\/admin\/reports\/([A-Za-z0-9_-]+)\/(resolve|reopen|delete)$/.exec(p);
+      if (req.method === 'POST' && repAdminMatch) {
+        const idx = serviceReports.findIndex((x) => x.id === repAdminMatch[1]);
+        if (idx < 0) return sendJson(res, 404, { error: 'گزارش پیدا نشد' });
+        if (repAdminMatch[2] === 'delete') serviceReports.splice(idx, 1);
+        else if (repAdminMatch[2] === 'resolve') { serviceReports[idx].status = 'done'; serviceReports[idx].resolvedAt = nowISO(); }
+        else { serviceReports[idx].status = 'open'; serviceReports[idx].resolvedAt = null; }
+        saveReports();
+        return sendJson(res, 200, { ok: true });
       }
 
       /* ── ادمین: چت با مشتری‌ها ── */
@@ -1239,7 +1569,7 @@ const server = http.createServer(async (req, res) => {
       }
 
       if (req.method === 'GET' && p === '/api/admin/settings') {
-        const { pgApiKey, pgPassword, adminPassHash, ...rest } = config;
+        const { pgApiKey, pgPassword, adminPassHash, panels, ...rest } = config;
         return sendJson(res, 200, {
           ...rest,
           pgApiKeyMasked: pgApiKey ? `••••••••${String(pgApiKey).slice(-4)}` : '',
@@ -1264,27 +1594,29 @@ const server = http.createServer(async (req, res) => {
         if (b.pgUsername !== undefined) config.pgUsername = cleanStr(b.pgUsername, 120);
         if (b.pgPassword) config.pgPassword = String(b.pgPassword).slice(0, 300);
         if (Array.isArray(b.pgGroupIds)) config.pgGroupIds = b.pgGroupIds.map(Number).filter((n) => Number.isFinite(n) && n > 0);
+        syncFirstPanelFromLegacy();
         saveConfig();
         return sendJson(res, 200, { ok: true, settings: publicConfig() });
       }
       if (req.method === 'POST' && p === '/api/admin/test-pg') {
         const b = await readBody(req);
-        const backup = { pgBaseUrl: config.pgBaseUrl, pgApiKey: config.pgApiKey, pgUsername: config.pgUsername, pgPassword: config.pgPassword };
-        if (b.pgBaseUrl) config.pgBaseUrl = normalizePgBase(cleanStr(b.pgBaseUrl, 200));
-        if (b.pgApiKey) config.pgApiKey = cleanStr(b.pgApiKey, 300);
-        if (b.pgUsername) config.pgUsername = cleanStr(b.pgUsername, 120);
-        if (b.pgPassword) config.pgPassword = String(b.pgPassword).slice(0, 300);
+        // پنل آزمایشی موقت از روی فرم (اگر panelId آمد روی همان پنل ذخیره‌شده) — بدون دست‌زدن به تنظیمات
+        const base = b.panelId ? panelById(b.panelId) : null;
+        const panel = sanitizePanel({
+          name: base?.name || 'تست اتصال',
+          baseUrl: b.pgBaseUrl ?? b.baseUrl ?? base?.baseUrl,
+          publicBaseUrl: b.pgPublicBaseUrl ?? b.publicBaseUrl ?? base?.publicBaseUrl,
+          apiKey: b.pgApiKey ?? b.apiKey ?? '',
+          username: b.pgUsername ?? b.username ?? base?.username,
+          password: b.pgPassword ?? b.password ?? '',
+          groupIds: base?.groupIds,
+        }, base);
+        panel.id = base?.id || 'pn_test';
         try {
-          const data = await pgFetch('/api/groups/simple', { query: { all: true } });
+          const data = await pgFetch(panel, '/api/groups/simple', { query: { all: true } });
           return sendJson(res, 200, { ok: true, groups: data?.groups || [] });
         } catch (e) {
           return sendJson(res, 502, { error: e.message });
-        } finally {
-          // تست اتصال نباید تنظیمات ذخیره‌شده را در حافظه دست‌کاری کند
-          config.pgBaseUrl = backup.pgBaseUrl;
-          config.pgApiKey = backup.pgApiKey;
-          config.pgUsername = backup.pgUsername;
-          config.pgPassword = backup.pgPassword;
         }
       }
       if (req.method === 'POST' && p === '/api/admin/change-password') {

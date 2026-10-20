@@ -99,6 +99,9 @@ textarea:focus{outline:none;border-color:rgba(216,180,106,.6)}
 #chat-swipe-hint-admin{position:absolute;right:6px;width:34px;height:34px;border-radius:50%;display:grid;place-items:center;background:rgba(216,180,106,.18);border:1px solid rgba(216,180,106,.55);color:#e8c97e;font-size:16px;opacity:0;pointer-events:none;z-index:5}
 #chat-swipe-hint-admin.go{background:rgba(216,180,106,.45);color:#141414}
 .cmt-text{white-space:pre-wrap;word-break:break-word;line-height:1.9;font-size:14px;margin-top:6px}
+.migrate-box{margin-top:12px;border:1px dashed rgba(216,180,106,.45);border-radius:12px;padding:12px 14px;background:rgba(216,180,106,.05)}
+.mig-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-top:10px}
+.mig-grid label{display:block;font-size:12.5px;color:var(--dim);margin-bottom:6px}
 </style>
 </head>
 <body>
@@ -147,6 +150,8 @@ textarea:focus{outline:none;border-color:rgba(216,180,106,.6)}
         <button class="btn btn-ghost btn-sm" id="btn-discounts">🎟 کدهای تخفیف</button>
         <button class="btn btn-ghost btn-sm" id="btn-news">📢 اطلاعیه‌ها</button>
         <button class="btn btn-ghost btn-sm" id="btn-comments">📝 نظرات <span class="badge" id="comments-badge" hidden>۰</span></button>
+        <button class="btn btn-ghost btn-sm" id="btn-panels">🖥 پنل‌ها</button>
+        <button class="btn btn-ghost btn-sm" id="btn-reports">🚨 گزارش‌ها <span class="badge" id="reports-badge" hidden>۰</span></button>
         <button class="btn btn-ghost btn-sm" id="btn-refresh">⟳ تازه‌سازی</button>
         <a class="btn btn-ghost btn-sm" href="__SITE_URL__" target="_blank" rel="noopener" style="text-decoration:none">🏠 برگشتن به صفحه اصلی</a>
         <button class="btn btn-ghost btn-sm" id="btn-logout">خروج</button>
@@ -175,30 +180,15 @@ textarea:focus{outline:none;border-color:rgba(216,180,106,.6)}
       <div class="card">
         <h2>⚙️ تنظیمات فروشگاه</h2>
         <div class="grid2">
-          <div><label for="set-price">قیمت هر گیگ (تومان)</label><input id="set-price" type="number" min="0" /></div>
+          <div><label for="set-price">قیمت پیش‌فرض هر گیگ (تومان)</label><input id="set-price" type="number" min="0" /></div>
           <div><label for="set-days">مدت هر پلن (روز)</label><input id="set-days" type="number" min="1" /></div>
           <div><label for="set-min">حداقل حجم خرید (گیگ)</label><input id="set-min" type="number" min="1" /></div>
           <div><label for="set-cardnum">شماره کارت</label><input id="set-cardnum" type="text" dir="ltr" inputmode="numeric" /></div>
           <div><label for="set-cardname">نام صاحب کارت</label><input id="set-cardname" type="text" /></div>
         </div>
-        <h2 style="margin-top:26px">🔌 اتصال پاسارگارد</h2>
-        <label for="set-pgurl">آدرس پنل پاسارگارد (بدون ‎/dashboard‎ در انتها)</label>
-        <input id="set-pgurl" type="url" dir="ltr" placeholder="https://node3.norkhizstudio.com:8000" />
-        <label for="set-pgpub">آدرس عمومی لینک اشتراک (اختیاری)</label>
-        <input id="set-pgpub" type="url" dir="ltr" placeholder="https://node3.norkhizstudio.com:8000" />
-        <p class="small">فقط وقتی لازم است که API پنل را با IP یا دامنهٔ دیگری صدا بزنی؛ لینک اشتراک مشتری با این آدرس ساخته می‌شود. خالی = همان آدرس پنل.</p>
-        <label for="set-pgkey">کلید API (برای تغییر، کلید جدید را وارد کن)</label>
-        <input id="set-pgkey" type="password" dir="ltr" placeholder="" />
-        <label for="set-pguser">نام کاربری پنل — جایگزین کلید API (پنل نمایندگی)</label>
-        <input id="set-pguser" type="text" dir="ltr" placeholder="panel username" autocomplete="off" />
-        <label for="set-pgpass">رمز پنل (برای تغییر، رمز جدید را وارد کن)</label>
-        <input id="set-pgpass" type="password" dir="ltr" placeholder="" autocomplete="new-password" />
-        <p class="small">اگر کلید API داشته باشی همان استفاده می‌شود؛ وگرنه فروشگاه با نام کاربری/رمز پنل وارد پاسارگارد می‌شود. این اطلاعات فقط روی سرور خودت ذخیره می‌شود.</p>
-        <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:16px">
-          <button class="btn btn-ghost btn-sm" id="btn-testpg" type="button">🔍 تست اتصال و دریافت گروه‌ها</button>
-        </div>
-        <p class="small" style="margin-top:10px">گروه‌هایی که کاربر جدید داخلشان ساخته شود (هیچ‌کدام انتخاب نشود = همه گروه‌ها):</p>
-        <div class="groups" id="groups"><span class="small">اول «تست اتصال» را بزن</span></div>
+        <h2 style="margin-top:26px">🔌 اتصال پاسارگارد (پنل‌ها)</h2>
+        <p class="small">آدرس، کلید API، نام کاربری/رمز و <b>قیمت هر پنل</b> از بخش «🖥 پنل‌ها» مدیریت می‌شود؛ می‌توانی چند پنل با اسم‌های مختلف تعریف کنی تا مشتری موقع خرید انتخاب کند و هنگام قطعی یک پنل، اشتراک‌ها را به پنل دیگر منتقل کنی.</p>
+        <div style="margin-top:12px"><button class="btn btn-ghost btn-sm" id="btn-goto-panels" type="button">رفتن به مدیریت پنل‌ها ←</button></div>
         <button class="btn btn-gold" id="btn-saveset" style="margin-top:22px">ذخیره تنظیمات</button>
         <p class="msg" id="set-msg"></p>
 
@@ -279,6 +269,44 @@ textarea:focus{outline:none;border-color:rgba(216,180,106,.6)}
       </div>
     </div>
 
+    <div id="panel-panels" style="display:none">
+      <div class="card">
+        <h2>🖥 پنل‌های پاسارگارد</h2>
+        <p class="small">هر پنل یک سرور/پنل پاسارگارد جداست. مشتری موقع خرید، پنل را با <b>اسمی که اینجا می‌گذاری</b> می‌بیند و انتخاب می‌کند و قیمت هر پنل هم جداست. پنل «غیرفعال» از خرید برداشته می‌شود، ولی اشتراک‌های روی آن همچنان در «سرویس من» مشتری کار می‌کنند و از کارت سفارش قابل <b>انتقال به پنل دیگر</b> هستند.</p>
+        <h3 style="margin-top:18px" id="panel-form-title">➕ افزودن پنل جدید</h3>
+        <div class="grid2">
+          <div><label for="pn-name">اسم پنل (نمایشی برای مشتری)</label><input id="pn-name" type="text" maxlength="60" placeholder="مثلاً: سرور ترکیه 🇹🇷" /></div>
+          <div><label for="pn-price">قیمت هر گیگ این پنل (تومان)</label><input id="pn-price" type="number" min="0" dir="ltr" placeholder="4000" /></div>
+          <div><label for="pn-url">آدرس پنل (بدون /dashboard در انتها)</label><input id="pn-url" type="url" dir="ltr" placeholder="https://node.example.com:8000" /></div>
+          <div><label for="pn-pub">آدرس عمومی لینک اشتراک (اختیاری)</label><input id="pn-pub" type="url" dir="ltr" placeholder="خالی = همان آدرس پنل" /></div>
+          <div><label for="pn-key">کلید API (pg_key_…)</label><input id="pn-key" type="password" dir="ltr" placeholder="pg_key_…" /></div>
+          <div><label for="pn-user">نام کاربری پنل — جایگزین کلید (پنل نمایندگی)</label><input id="pn-user" type="text" dir="ltr" placeholder="panel username" autocomplete="off" /></div>
+          <div><label for="pn-pass">رمز پنل</label><input id="pn-pass" type="password" dir="ltr" placeholder="panel password" autocomplete="new-password" /></div>
+          <div><label for="pn-groups">آیدی گروه‌ها (با کاما — خالی = همه)</label><input id="pn-groups" type="text" dir="ltr" placeholder="1,2,3" /></div>
+        </div>
+        <label style="display:flex;gap:8px;align-items:center;margin-top:12px"><input id="pn-enabled" type="checkbox" style="width:auto" checked /> این پنل در خرید مشتری نمایش داده شود (فعال)</label>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:16px;align-items:center">
+          <button class="btn btn-gold" id="pn-save" style="width:auto">ذخیره پنل</button>
+          <button class="btn btn-ghost btn-sm" id="pn-test" type="button">🔍 تست اتصال این پنل</button>
+          <button class="btn btn-ghost btn-sm" id="pn-cancel" type="button" style="display:none">لغو ویرایش</button>
+        </div>
+        <p class="small" id="pn-groups-hint" style="margin-top:10px"></p>
+        <p class="msg" id="pn-msg"></p>
+        <h3 style="margin-top:26px">پنل‌های فعلی</h3>
+        <div id="panels-list" style="margin-top:12px"><p class="empty">در حال بارگذاری…</p></div>
+        <button class="btn btn-ghost btn-sm" id="btn-back6" style="margin-top:16px">← بازگشت به سفارش‌ها</button>
+      </div>
+    </div>
+
+    <div id="panel-reports" style="display:none">
+      <div class="card">
+        <h2>🚨 گزارش‌های مشکل سرویس</h2>
+        <p class="small">مشتری‌ها از بخش «سرویس من» برای هر اشتراک گزارش مشکل می‌فرستند. اگر پنل آن سرویس قطع است، با دکمهٔ «انتقال این سرویس» مستقیم می‌روی سراغ انتقالش به یک پنل دیگر — با حجم و زمان باقی‌مانده.</p>
+        <div id="reports-list" style="margin-top:16px"><p class="empty">در حال بارگذاری…</p></div>
+        <button class="btn btn-ghost btn-sm" id="btn-back7" style="margin-top:16px">← بازگشت به سفارش‌ها</button>
+      </div>
+    </div>
+
     <div id="panel-chats" style="display:none">
       <div class="card">
         <h2>💬 گفت‌وگو با مشتری‌ها</h2>
@@ -332,6 +360,8 @@ function showPanel(name) {
   $('#panel-discounts').style.display = name === 'discounts' ? 'block' : 'none';
   $('#panel-news').style.display = name === 'news' ? 'block' : 'none';
   $('#panel-comments').style.display = name === 'comments' ? 'block' : 'none';
+  $('#panel-panels').style.display = name === 'panels' ? 'block' : 'none';
+  $('#panel-reports').style.display = name === 'reports' ? 'block' : 'none';
 }
 function setChatBadge(n) {
   const b = $('#chat-badge');
@@ -342,6 +372,12 @@ function setChatBadge(n) {
 }
 
 /* ── راه‌اندازی / ورود ── */
+function setReportsBadge(n) {
+  const b = $('#reports-badge');
+  if (!b) return;
+  b.hidden = !n;
+  b.textContent = toFa(n);
+}
 function setCommentsBadge(n) {
   const b = $('#comments-badge');
   if (!b) return;
@@ -389,6 +425,7 @@ function orderCard(o) {
     acts.push(`<button class="btn btn-red btn-sm" data-reject="${o.code}">✕ رد کردن</button>`);
   }
   if (o.status === 'approved' && !o.pg?.subUrl) acts.push(`<button class="btn btn-green btn-sm" data-approve="${o.code}">🔁 تلاش دوباره برای ساخت</button>`);
+  if (o.status === 'approved' && o.pg?.username) acts.push(`<button class="btn btn-ghost btn-sm" data-migrate-open="${o.code}">🔁 انتقال به پنل دیگر</button>`);
   return `<article class="order">
     <div class="order-head">
       <span class="code">${esc(o.code)}</span>
@@ -406,10 +443,25 @@ function orderCard(o) {
       ${o.note ? `<span>توضیح خریدار: <b>${esc(o.note)}</b></span>` : ''}
       ${o.status === 'rejected' && o.rejectReason ? `<span>علت رد: <b>${esc(o.rejectReason)}</b></span>` : ''}
       ${o.pg?.username ? `<span>یوزر پنل: <b class="ref">${esc(o.pg.username)}</b></span>` : ''}
+      ${o.panelName ? `<span>پنل: <b>${esc(o.panelName)}</b></span>` : ''}
+      ${o.migrations?.length ? `<span>انتقال‌ها: <b>${o.migrations.map((m) => `${esc(m.fromPanelName || '؟')}←${esc(m.toPanelName || '؟')}`).join('، ')}</b></span>` : ''}
     </div>
     ${o.provisionError ? `<p class="perr">⚠️ آخرین خطای ساخت کانفیگ (${faDate(o.provisionError.at)}): ${esc(o.provisionError.message)}</p>` : ''}
     ${o.pg?.subUrl ? `<div class="sub-url"><input readonly dir="ltr" value="${esc(o.pg.subUrl)}" /><button class="btn btn-ghost btn-sm" data-copy="${esc(o.pg.subUrl)}">کپی لینک اشتراک</button></div>` : ''}
     ${acts.length ? `<div class="actions">${acts.join('')}</div>` : ''}
+    ${o.status === 'approved' && o.pg?.username ? `<div class="migrate-box" data-migrate-box="${o.code}" style="display:none">
+      <p class="small" data-mig-info>در حال خواندن وضعیت سرویس…</p>
+      <div class="mig-grid">
+        <div><label>پنل مقصد</label><select data-mig-target></select></div>
+        <div><label>حجم (گیگ)</label><input type="number" step="0.1" min="0" dir="ltr" data-mig-gb /></div>
+        <div><label>مدت (روز)</label><input type="number" step="1" min="1" dir="ltr" data-mig-days /></div>
+      </div>
+      <div class="actions" style="margin-top:10px">
+        <button class="btn btn-green btn-sm" data-migrate-go="${o.code}">✓ انتقال بده و لینک جدید بساز</button>
+        <button class="btn btn-ghost btn-sm" data-migrate-cancel="${o.code}">انصراف</button>
+      </div>
+      <p class="small">کانفیگ روی پنل قبلی (اگر در دسترس باشد) غیرفعال می‌شود؛ لینک جدید خودکار در «سرویس من» مشتری قرار می‌گیرد و در چت پشتیبانی هم خبر داده می‌شود.</p>
+    </div>` : ''}
   </article>`;
 }
 async function loadOrders(silent) {
@@ -423,6 +475,7 @@ async function loadOrders(silent) {
     const su = $('#st-users'); if (su) su.textContent = toFa(data.counts.users || 0);
     setChatBadge(data.counts.chatsUnread || 0);
     setCommentsBadge(data.counts.commentsPending || 0);
+    setReportsBadge(data.counts.reportsOpen || 0);
     $('#orders').innerHTML = data.orders.length ? data.orders.map(orderCard).join('') : '<p class="empty">سفارشی نیست 🌙</p>';
   } catch (e) { if (!silent) alert(e.message); }
 }
@@ -439,6 +492,16 @@ $('#orders').addEventListener('click', async (e) => {
   if (copyBtn) { try { await navigator.clipboard.writeText(copyBtn.dataset.copy); copyBtn.textContent = 'کپی شد ✓'; setTimeout(() => copyBtn.textContent = 'کپی لینک اشتراک', 2000); } catch {} return; }
   const ap = e.target.closest('[data-approve]');
   const rj = e.target.closest('[data-reject]');
+  const migOpen = e.target.closest('[data-migrate-open]');
+  const migCancel = e.target.closest('[data-migrate-cancel]');
+  const migGo = e.target.closest('[data-migrate-go]');
+  if (migCancel) {
+    const box = document.querySelector(`[data-migrate-box="${migCancel.dataset.migrateCancel}"]`);
+    if (box) box.style.display = 'none';
+    return;
+  }
+  if (migOpen) { openMigrate(migOpen.dataset.migrateOpen); return; }
+  if (migGo) { doMigrate(migGo); return; }
   if (ap) {
     if (!confirm(`سفارش ${ap.dataset.approve} تأیید شود و کانفیگ ساخته شود؟`)) return;
     ap.disabled = true; ap.textContent = 'در حال ساخت کانفیگ…';
@@ -462,13 +525,6 @@ $('#btn-settings').onclick = async () => {
     const s = await api('/api/admin/settings');
     $('#set-price').value = s.pricePerGB; $('#set-days').value = s.planDays; $('#set-min').value = s.minGB;
     $('#set-cardnum').value = s.cardNumber; $('#set-cardname').value = s.cardName;
-    $('#set-pgurl').value = s.pgBaseUrl || '';
-    $('#set-pgpub').value = s.pgPublicBaseUrl || '';
-    $('#set-pgkey').value = ''; $('#set-pgkey').placeholder = s.hasApiKey ? `فعلی: ${s.pgApiKeyMasked} (برای تغییر، جدید را بنویس)` : 'pg_key_…';
-    $('#set-pguser').value = s.pgUsername || '';
-    $('#set-pgpass').value = ''; $('#set-pgpass').placeholder = s.hasPgPassword ? 'فعلی: ذخیره شده (برای تغییر، جدید را بنویس)' : 'panel password';
-    savedGroupIds = s.pgGroupIds || [];
-    renderGroups();
   } catch (e) { msg('#set-msg', e.message); }
 };
 $('#btn-back').onclick = () => { showPanel('main'); loadOrders(); };
@@ -532,29 +588,49 @@ document.addEventListener('click', async (e) => {
 });
 
 $('#btn-chats').onclick = () => { showPanel('chats'); loadChatList(); };
-function renderGroups() {
-  const box = $('#groups');
-  if (!allGroups.length) { box.innerHTML = '<span class="small">اول «تست اتصال» را بزن</span>'; return; }
-  box.innerHTML = allGroups.map((g) => `<label><input type="checkbox" value="${g.id}" ${savedGroupIds.includes(g.id) ? 'checked' : ''}/> ${esc(g.name)} <span class="small">#${g.id}</span></label>`).join('');
-}
-$('#btn-testpg').onclick = async () => {
-  msg('#set-msg', 'در حال تست اتصال…', true);
+/* ── انتقال اشتراک بین پنل‌ها ── */
+async function openMigrate(code) {
+  const box = document.querySelector(`[data-migrate-box="${code}"]`);
+  if (!box) return;
+  if (box.style.display !== 'none') { box.style.display = 'none'; return; }
+  box.style.display = 'block';
+  const info = box.querySelector('[data-mig-info]');
+  const sel = box.querySelector('[data-mig-target]');
+  const gbIn = box.querySelector('[data-mig-gb]');
+  const daysIn = box.querySelector('[data-mig-days]');
+  info.textContent = 'در حال خواندن وضعیت سرویس از پنل فعلی…';
   try {
-    const r = await api('/api/admin/test-pg', { method: 'POST', body: { pgBaseUrl: $('#set-pgurl').value.trim(), pgApiKey: $('#set-pgkey').value.trim(), pgUsername: $('#set-pguser').value.trim(), pgPassword: $('#set-pgpass').value } });
-    allGroups = r.groups || [];
-    renderGroups();
-    msg('#set-msg', `اتصال برقرار شد ✓ — ${toFa(allGroups.length)} گروه پیدا شد`, true);
-  } catch (e) { msg('#set-msg', e.message); }
-};
+    const d = await api(`/api/admin/orders/${encodeURIComponent(code)}/migrate-preview`);
+    const srcFa = d.source === 'live' ? 'زنده از پنل' : d.source === 'cached' ? 'آخرین اطلاعات ذخیره‌شده (پنل پاسخ نداد)' : 'حجم اصلی خرید (اطلاعات مصرف در دسترس نبود)';
+    info.innerHTML = `پنل فعلی: <b>${esc(d.fromPanelName || '—')}</b> · مصرف: <b>${d.usedGB == null ? 'نامشخص' : toFa(d.usedGB) + ' گیگ'}</b> از <b>${toFa(d.totalGB)} گیگ</b> · باقی‌مانده: <b>${toFa(d.remainGB)} گیگ</b> و <b>${toFa(d.remainDays)} روز</b> <span class="small">(${srcFa})</span><br><span class="small">حجم و روز را در صورت نیاز دستی تغییر بده.</span>`;
+    sel.innerHTML = d.targets.length ? d.targets.map((t) => `<option value="${esc(t.id)}">${esc(t.name)}${t.enabled ? '' : ' (غیرفعال در خرید)'}${t.hasUrl ? '' : ' — ⚠️ بدون آدرس'}</option>`).join('') : '<option value="">پنل دیگری تعریف نشده است</option>';
+    gbIn.value = d.remainGB;
+    daysIn.value = d.remainDays;
+  } catch (e) { info.textContent = 'خطا: ' + e.message; }
+}
+async function doMigrate(btn) {
+  const code = btn.dataset.migrateGo;
+  const box = document.querySelector(`[data-migrate-box="${code}"]`);
+  const toPanelId = box.querySelector('[data-mig-target]').value;
+  const gb = Number(box.querySelector('[data-mig-gb]').value);
+  const days = Number(box.querySelector('[data-mig-days]').value);
+  if (!toPanelId) { alert('پنل مقصدی انتخاب نشده؛ اول از بخش «پنل‌ها» یک پنل دیگر اضافه کن.'); return; }
+  const panelName = box.querySelector('[data-mig-target]').selectedOptions[0]?.textContent || '';
+  if (!confirm(`سفارش ${code} با ${toFa(gb)} گیگ و ${toFa(days)} روز به پنل «${panelName}» منتقل شود و لینک اشتراک جدید ساخته شود؟`)) return;
+  btn.disabled = true; btn.textContent = 'در حال انتقال…';
+  try {
+    const r = await api(`/api/admin/orders/${encodeURIComponent(code)}/migrate`, { method: 'POST', body: { toPanelId, gb, days } });
+    alert(`انتقال انجام شد ✓ لینک جدید ساخته شد و مشتری در «سرویس من» به آن دسترسی دارد.${r.sourceDisabled ? ' کانفیگ روی پنل قبلی غیرفعال شد.' : ' (پنل قبلی در دسترس نبود و کانفیگش خاموش نشد.)'}${r.reportsClosed ? ` ${toFa(r.reportsClosed)} گزارش باز این سرویس هم بسته شد.` : ''}`);
+    loadOrders();
+  } catch (e) { alert(e.message); btn.disabled = false; btn.textContent = '✓ انتقال بده و لینک جدید بساز'; }
+}
 $('#btn-saveset').onclick = async () => {
-  const pgGroupIds = [...document.querySelectorAll('#groups input:checked')].map((i) => Number(i.value));
   try {
     await api('/api/admin/settings', { method: 'POST', body: {
       pricePerGB: Number($('#set-price').value), planDays: Number($('#set-days').value), minGB: Number($('#set-min').value),
       cardNumber: $('#set-cardnum').value.trim(), cardName: $('#set-cardname').value.trim(),
-      pgBaseUrl: $('#set-pgurl').value.trim(), pgPublicBaseUrl: $('#set-pgpub').value.trim(), pgApiKey: $('#set-pgkey').value.trim(), pgUsername: $('#set-pguser').value.trim(), pgPassword: $('#set-pgpass').value, pgGroupIds,
     } });
-    msg('#set-msg', 'تنظیمات ذخیره شد ✓', true);
+    msg('#set-msg', 'تنظیمات ذخیره شد ✓ (قیمت و اتصال هر پنل از بخش «پنل‌ها» مدیریت می‌شود)', true);
   } catch (e) { msg('#set-msg', e.message); }
 };
 $('#btn-changepw').onclick = async () => {
@@ -833,6 +909,164 @@ if (admReplyX) admReplyX.addEventListener('click', clearAdminReply);
   box.addEventListener('pointercancel', finish);
   window.addEventListener('pointerup', () => { if (sw) { const el = sw.el; sw = null; reset(el); } }, { passive: true });
 })();
+
+/* ── پنل‌های پاسارگارد ── */
+let panelsCache = [], editingPanelId = null;
+async function loadPanelsAdmin() {
+  const box = $('#panels-list');
+  try {
+    const { panels } = await api('/api/admin/panels');
+    panelsCache = panels || [];
+    box.innerHTML = panelsCache.length ? panelsCache.map((p) => `
+      <div class="disc-row">
+        <div class="disc-main">
+          <b>${esc(p.name)}</b>
+          ${p.enabled ? '<span class="tag green">فعال در خرید</span>' : '<span class="tag">غیرفعال در خرید</span>'}
+          <span class="tag gold">هر گیگ ${toFa(p.pricePerGB)} تومان</span>
+          <span class="small">سفارش روی این پنل: ${toFa(p.ordersCount)}</span>
+          <div class="small" dir="ltr" style="text-align:left">${esc(p.baseUrl || '— بدون آدرس —')}</div>
+          <span class="small">${p.hasApiKey ? 'کلید API: ' + esc(p.apiKeyMasked) : p.hasPassword ? 'ورود با نام کاربری/رمز پنل' : '⚠️ بدون کلید API و رمز'}${p.groupIds && p.groupIds.length ? ` · گروه‌ها: ${p.groupIds.join(', ')}` : ' · همه گروه‌ها'}</span>
+        </div>
+        <div class="disc-actions">
+          <button class="btn btn-ghost btn-sm" data-pn-edit="${esc(p.id)}">✏️ ویرایش</button>
+          <button class="btn btn-ghost btn-sm" data-pn-toggle="${esc(p.id)}">${p.enabled ? '⏸ غیرفعال در خرید' : '▶ فعال در خرید'}</button>
+          <button class="btn btn-ghost btn-sm" data-pn-del="${esc(p.id)}">🗑 حذف</button>
+        </div>
+      </div>`).join('') : '<p class="empty">هنوز پنلی تعریف نشده.</p>';
+  } catch (e) { box.innerHTML = `<p class="empty">خطا: ${esc(e.message)}</p>`; }
+}
+function resetPanelForm() {
+  editingPanelId = null;
+  ['pn-name', 'pn-price', 'pn-url', 'pn-pub', 'pn-key', 'pn-user', 'pn-pass', 'pn-groups'].forEach((id) => { $('#' + id).value = ''; });
+  $('#pn-enabled').checked = true;
+  $('#pn-key').placeholder = 'pg_key_…'; $('#pn-pass').placeholder = 'panel password';
+  $('#panel-form-title').textContent = '➕ افزودن پنل جدید';
+  $('#pn-cancel').style.display = 'none';
+  $('#pn-groups-hint').textContent = '';
+}
+function panelFormBody() {
+  return {
+    name: $('#pn-name').value.trim(),
+    pricePerGB: Number($('#pn-price').value) || undefined,
+    baseUrl: $('#pn-url').value.trim(),
+    publicBaseUrl: $('#pn-pub').value.trim(),
+    apiKey: $('#pn-key').value.trim(),
+    username: $('#pn-user').value.trim(),
+    password: $('#pn-pass').value,
+    groupIds: $('#pn-groups').value.split(/[,\s]+/).map((x) => Number(x)).filter((n) => Number.isFinite(n) && n > 0),
+    enabled: $('#pn-enabled').checked,
+  };
+}
+$('#btn-panels').onclick = () => { showPanel('panels'); loadPanelsAdmin(); };
+$('#btn-back6').onclick = () => { showPanel('main'); loadOrders(); };
+$('#pn-cancel').onclick = resetPanelForm;
+$('#pn-save').onclick = async () => {
+  const btn = $('#pn-save'); btn.disabled = true;
+  try {
+    const body = panelFormBody();
+    if (editingPanelId) await api(`/api/admin/panels/${editingPanelId}/edit`, { method: 'POST', body });
+    else await api('/api/admin/panels', { method: 'POST', body });
+    msg('#pn-msg', 'پنل ذخیره شد ✓', true);
+    resetPanelForm();
+    loadPanelsAdmin();
+  } catch (e) { msg('#pn-msg', e.message, false); }
+  finally { btn.disabled = false; }
+};
+$('#pn-test').onclick = async () => {
+  msg('#pn-msg', 'در حال تست اتصال…', true);
+  try {
+    const body = panelFormBody();
+    const r = await api('/api/admin/test-pg', { method: 'POST', body: { panelId: editingPanelId || undefined, pgBaseUrl: body.baseUrl, pgApiKey: body.apiKey, pgUsername: body.username, pgPassword: body.password } });
+    const groups = r.groups || [];
+    $('#pn-groups-hint').textContent = groups.length ? `گروه‌های این پنل: ${groups.map((g) => `${g.name} (#${g.id})`).join(' · ')} — اگر می‌خواهی کاربر جدید فقط در گروه‌های خاص ساخته شود آیدی‌هایشان را بالا بنویس؛ خالی یعنی همه گروه‌ها.` : '';
+    msg('#pn-msg', `اتصال برقرار شد ✓ — ${toFa(groups.length)} گروه پیدا شد`, true);
+  } catch (e) { msg('#pn-msg', e.message); }
+};
+document.addEventListener('click', async (e) => {
+  const pnEdit = e.target.closest('[data-pn-edit]');
+  const pnTg = e.target.closest('[data-pn-toggle]');
+  const pnDel = e.target.closest('[data-pn-del]');
+  const rpResolve = e.target.closest('[data-rp-resolve]');
+  const rpReopen = e.target.closest('[data-rp-reopen]');
+  const rpDel = e.target.closest('[data-rp-del]');
+  const rpMig = e.target.closest('[data-rp-migrate]');
+  if (!pnEdit && !pnTg && !pnDel && !rpResolve && !rpReopen && !rpDel && !rpMig) return;
+  try {
+    if (pnEdit) {
+      const p = panelsCache.find((x) => x.id === pnEdit.dataset.pnEdit);
+      if (!p) return;
+      editingPanelId = p.id;
+      $('#pn-name').value = p.name || ''; $('#pn-price').value = p.pricePerGB || '';
+      $('#pn-url').value = p.baseUrl || ''; $('#pn-pub').value = p.publicBaseUrl || '';
+      $('#pn-user').value = p.username || ''; $('#pn-groups').value = (p.groupIds || []).join(',');
+      $('#pn-key').value = ''; $('#pn-key').placeholder = p.hasApiKey ? `فعلی: ${p.apiKeyMasked} (خالی = بدون تغییر)` : 'pg_key_…';
+      $('#pn-pass').value = ''; $('#pn-pass').placeholder = p.hasPassword ? 'فعلی: ذخیره شده (خالی = بدون تغییر)' : 'panel password';
+      $('#pn-enabled').checked = !!p.enabled;
+      $('#panel-form-title').textContent = '✏️ ویرایش پنل';
+      $('#pn-cancel').style.display = 'inline-block';
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+    if (pnTg) { await api(`/api/admin/panels/${pnTg.dataset.pnToggle}/toggle`, { method: 'POST' }); loadPanelsAdmin(); }
+    if (pnDel) {
+      if (!confirm('این پنل حذف بشه؟')) return;
+      await api(`/api/admin/panels/${pnDel.dataset.pnDel}/delete`, { method: 'POST' });
+      if (editingPanelId === pnDel.dataset.pnDel) resetPanelForm();
+      loadPanelsAdmin();
+    }
+    if (rpResolve) { await api(`/api/admin/reports/${rpResolve.dataset.rpResolve}/resolve`, { method: 'POST' }); loadReportsAdmin(); }
+    if (rpReopen) { await api(`/api/admin/reports/${rpReopen.dataset.rpReopen}/reopen`, { method: 'POST' }); loadReportsAdmin(); }
+    if (rpDel) {
+      if (!confirm('این گزارش حذف بشه؟')) return;
+      await api(`/api/admin/reports/${rpDel.dataset.rpDel}/delete`, { method: 'POST' });
+      loadReportsAdmin();
+    }
+    if (rpMig) {
+      const code = rpMig.dataset.rpMigrate;
+      showPanel('main');
+      curStatus = '';
+      document.querySelectorAll('.tab').forEach((x) => x.classList.toggle('on', x.dataset.status === ''));
+      $('#search').value = code;
+      await loadOrders();
+      setTimeout(() => {
+        const btn = document.querySelector(`[data-migrate-open="${code}"]`);
+        if (btn) { btn.click(); btn.scrollIntoView({ behavior: 'smooth', block: 'center' }); }
+        else alert('کارت این سفارش پیدا نشد؛ در لیست سفارش‌ها پیداش کن و «انتقال به پنل دیگر» را بزن.');
+      }, 150);
+    }
+  } catch (err) { alert(err.message); }
+});
+
+/* ── گزارش‌های مشکل سرویس ── */
+async function loadReportsAdmin() {
+  const box = $('#reports-list');
+  try {
+    const r = await api('/api/admin/reports');
+    setReportsBadge(r.open || 0);
+    const list = r.reports || [];
+    box.innerHTML = list.length ? list.map((rp) => `
+      <div class="disc-row">
+        <div class="disc-main">
+          <b dir="ltr">${esc(rp.code)}</b>
+          ${rp.status === 'open' ? '<span class="tag gold">🚨 باز — در انتظار رسیدگی</span>' : '<span class="tag green">انجام شد</span>'}
+          <span class="small">کاربر: <bdi dir="ltr">@${esc(rp.username || '؟')}</bdi>${rp.panelName ? ` · پنل: ${esc(rp.panelName)}` : ''} · ${faDate(rp.createdAt)}${rp.resolvedAt ? ` · انجام: ${faDate(rp.resolvedAt)}` : ''}</span>
+          <div class="cmt-text">${esc(rp.text)}</div>
+        </div>
+        <div class="disc-actions">
+          <button class="btn btn-green btn-sm" data-rp-migrate="${esc(rp.code)}">🔁 انتقال این سرویس</button>
+          ${rp.status === 'open'
+            ? `<button class="btn btn-ghost btn-sm" data-rp-resolve="${esc(rp.id)}">✓ انجام شد</button>`
+            : `<button class="btn btn-ghost btn-sm" data-rp-reopen="${esc(rp.id)}">↩ باز کردن دوباره</button>`}
+          <button class="btn btn-ghost btn-sm" data-rp-del="${esc(rp.id)}">🗑 حذف</button>
+        </div>
+      </div>`).join('') : '<p class="empty">هنوز گزارشی ثبت نشده 🌙</p>';
+  } catch (e) { box.innerHTML = `<p class="empty">خطا: ${esc(e.message)}</p>`; }
+}
+$('#btn-reports').onclick = () => { showPanel('reports'); loadReportsAdmin(); };
+$('#btn-back7').onclick = () => { showPanel('main'); loadOrders(); };
+
+
+/* دکمه رفتن به پنل‌ها از داخل تنظیمات */
+(() => { const g = document.querySelector('#btn-goto-panels'); if (g) g.onclick = () => { showPanel('panels'); loadPanelsAdmin(); }; })();
 
 /* ── شروع ── */
 (async () => {

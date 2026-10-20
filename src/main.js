@@ -23,6 +23,7 @@ const cfg = {
   minGB: 10,
   cardNumber: '6219861495616921',
   cardName: 'ایمان دهقانی',
+  panels: [],               // پنل‌های قابل خرید [{id, name, pricePerGB}]
 };
 
 const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -384,7 +385,44 @@ const ckPerdayEl = $('#ck-perday');
 let calcGB = 50;
 let selectedGB = 50;
 
-const priceOf = (gb) => gb * cfg.pricePerGB;
+/* ── انتخاب پنل (سرور): قیمت همه‌چیز از پنل انتخابی مشتری حساب می‌شود ── */
+let selectedPanelId = '';
+const salePanels = () => (Array.isArray(cfg.panels) ? cfg.panels : []);
+const selectedPanel = () => salePanels().find((p) => p.id === selectedPanelId) || salePanels()[0] || null;
+const pricePerGBNow = () => selectedPanel()?.pricePerGB || cfg.pricePerGB;
+const priceOf = (gb) => gb * pricePerGBNow();
+function renderPanelPicker() {
+  const list = salePanels();
+  const cur = selectedPanel();
+  if (cur) selectedPanelId = cur.id;
+  const wrap = $('#panel-picker');
+  const opts = $('#panel-opts');
+  if (wrap && opts) {
+    wrap.hidden = list.length < 2;
+    opts.innerHTML = list.map((p) => `<button type="button" class="panel-opt ${p.id === selectedPanelId ? 'on' : ''}" data-panel-opt="${esc(p.id)}" role="radio" aria-checked="${p.id === selectedPanelId}" data-hover><b>${esc(p.name)}</b><span>هر گیگ ${toFa(p.pricePerGB)} تومان</span></button>`).join('');
+  }
+  const ckName = $('#ck-panel-name');
+  if (ckName) {
+    ckName.hidden = !cur || list.length < 2;
+    if (cur) ckName.innerHTML = `پنل انتخابی: <b>${esc(cur.name)}</b> — هر گیگ ${toFa(cur.pricePerGB)} تومان`;
+  }
+}
+function selectPanel(id) {
+  if (!salePanels().some((p) => p.id === id) || id === selectedPanelId) return;
+  selectedPanelId = id;
+  if (appliedDiscount) {
+    clearDiscount();
+    setStatus($('#discount-msg'), 'پنل عوض شد؛ برای قیمت جدید، کد تخفیف رو دوباره اعمال کن');
+  }
+  renderPanelPicker();
+  renderStaticPrices();
+  updateCalc(calcGB, null);
+  setSelectedGB(selectedGB, null);
+}
+document.addEventListener('click', (e) => {
+  const b = e.target.closest('[data-panel-opt]');
+  if (b) selectPanel(b.dataset.panelOpt);
+});
 const fmtPrice = (gb) => `${toFa(priceOf(gb))} تومان`;
 const fmtPerDay = (gb) => `روزی حدود ${toFa(priceOf(gb) / cfg.planDays)} تومان`;
 
@@ -414,7 +452,7 @@ function clearDiscount(silent) {
 const clampGB = (gb) => Math.max(cfg.minGB, Math.min(5000, Math.round(Number(gb) || cfg.minGB)));
 
 function renderStaticPrices() {
-  $$('[data-price-per-gb]').forEach((el) => { el.textContent = toFa(cfg.pricePerGB); });
+  $$('[data-price-per-gb]').forEach((el) => { el.textContent = toFa(pricePerGBNow()); });
   $$('[data-plan-days]').forEach((el) => { el.textContent = toFa(cfg.planDays); });
   $$('[data-min-gb]').forEach((el) => { el.textContent = toFa(cfg.minGB); });
   $$('[data-price-gb]').forEach((el) => { el.textContent = toFa(priceOf(parseFloat(el.dataset.priceGb) || 0)); });
@@ -464,6 +502,7 @@ fetch('/api/config')
   .then((r) => (r.ok ? r.json() : Promise.reject()))
   .then((remote) => {
     Object.assign(cfg, remote);
+    renderPanelPicker();
     renderStaticPrices();
     updateCalc(calcGB, null);
     setSelectedGB(selectedGB, null);
@@ -493,7 +532,7 @@ $('#discount-apply')?.addEventListener('click', async () => {
   btn.disabled = true;
   setStatus(msgEl, 'در حال بررسی کد…', true);
   try {
-    const d = await api('/api/discounts/validate', { method: 'POST', body: { code, gb: selectedGB } });
+    const d = await api('/api/discounts/validate', { method: 'POST', body: { code, gb: selectedGB, panelId: selectedPanel()?.id || '' } });
     appliedDiscount = { code: d.code, type: d.type, value: d.value };
     $('#f-discount').value = d.code;
     $('#f-discount').disabled = true;
@@ -527,7 +566,7 @@ orderForm?.addEventListener('submit', async (e) => {
   btn.disabled = true;
   setStatus(orderStatus, 'در حال ثبت سفارش…', true);
   try {
-    const data = await api('/api/orders', { method: 'POST', body: { gb: selectedGB, last4, ...(appliedDiscount ? { discountCode: appliedDiscount.code } : {}) } });
+    const data = await api('/api/orders', { method: 'POST', body: { gb: selectedGB, last4, panelId: selectedPanel()?.id || '', ...(appliedDiscount ? { discountCode: appliedDiscount.code } : {}) } });
     localStorage.setItem('nk_last_order', JSON.stringify({ code: data.code, last4 }));
     clearDiscount();
     $('#success-code').textContent = data.code;
@@ -905,6 +944,7 @@ function renderMyOrders(list) {
       <div class="mo-meta">
         <span>حجم: <b>${faNum(o.gb)} گیگ / ${faNum(o.days)} روز</b></span>
         <span>مبلغ: <b>${faNum(o.price)} تومان</b></span>
+        ${o.panelName ? `<span>پنل: <b>${esc(o.panelName)}</b></span>` : ''}
         ${o.discountAmount ? `<span>🎟 تخفیف: <b>‏−${faNum(o.discountAmount)} تومان</b> (کد ${esc(o.discountCode || '')})</span>` : ''}
         ${o.last4 ? `<span>کارت پرداخت: <b dir="ltr">•••• ${esc(o.last4)}</b></span>` : ''}
         <span>ثبت: <b>${faDateTime(o.createdAt)}</b></span>
@@ -958,6 +998,7 @@ function renderServices(list) {
         <div class="usage-bar"><div class="usage-fill ${fillCls}" style="width:${pct}%"></div></div>
       </div>
       <div class="svc-meta">
+        ${s.panelName ? `<span>پنل: <b>${esc(s.panelName)}</b></span>` : ''}
         ${s.expire ? `<span>انقضا: <b>${faDateTime(new Date(s.expire * 1000).toISOString())}</b></span>` : ''}
         ${s.username ? `<span>نام اشتراک: <b dir="ltr">${esc(s.username)}</b></span>` : ''}
         <span>${s.live ? '🟢 اطلاعات زنده' : '🟡 اطلاعات ذخیره‌شده'}</span>
@@ -971,11 +1012,17 @@ function renderServices(list) {
         <button type="button" class="btn btn-ghost btn-sm" data-svc="extend-open" data-hover><span class="btn-label">📅 تمدید زمان (رایگان)</span></button>
         <button type="button" class="btn btn-ghost btn-sm" data-svc="revoke" data-hover><span class="btn-label">🔄 تغییر لینک اشتراک</span></button>
         <button type="button" class="btn ${s.status === 'disabled' ? 'btn-primary' : 'btn-ghost'} btn-sm" data-svc="toggle" data-on="${s.status === 'disabled' ? '1' : '0'}" data-hover><span class="btn-label">${s.status === 'disabled' ? '▶ روشن کردن اشتراک' : '⏸ توقف اشتراک'}</span></button>
+        <button type="button" class="btn btn-ghost btn-sm" data-svc="report-open" data-hover><span class="btn-label">🚨 گزارش مشکل سرویس</span></button>
       </div>
       <div class="svc-extend" data-extend-box hidden>
         <label>چند روز اضافه بشه؟ <input type="number" min="1" max="365" step="1" value="30" data-extend-days inputmode="numeric" dir="ltr" /> روز</label>
         <button type="button" class="btn btn-primary btn-sm" data-svc="extend-go" data-hover><span class="btn-label">تمدید کن</span></button>
         <small>رایگانه — هر بار حداکثر ۳۶۵ روز. حجم اشتراکت تغییری نمی‌کنه.</small>
+      </div>
+      <div class="svc-report" data-report-box hidden>
+        ${s.reportOpen ? '<p class="svc-report-open">📨 یک گزارش برای این سرویس فرستادی و در حال بررسی است؛ به‌زودی رسیدگی می‌کنیم 🙏</p>' : `<label class="svc-report-label" for="report-text-${esc(s.code)}">مشکل سرویس رو بنویس تا سریع رسیدگی کنیم:</label>
+        <textarea id="report-text-${esc(s.code)}" data-report-text rows="3" maxlength="1000" placeholder="مثلاً: از امروز صبح وصل نمیشه…"></textarea>
+        <button type="button" class="btn btn-primary btn-sm" data-svc="report-go" data-hover><span class="btn-label">ارسال گزارش</span></button>`}
       </div>` : ''}
     </article>`;
   }).join('');
@@ -994,6 +1041,27 @@ $('#service-list')?.addEventListener('click', async (e) => {
   if (act === 'extend-open') {
     const box = card.querySelector('[data-extend-box]');
     if (box) { box.hidden = !box.hidden; if (!box.hidden) box.querySelector('[data-extend-days]')?.focus(); }
+    return;
+  }
+  if (act === 'report-open') {
+    const box = card.querySelector('[data-report-box]');
+    if (box) { box.hidden = !box.hidden; if (!box.hidden) box.querySelector('[data-report-text]')?.focus(); }
+    return;
+  }
+  if (act === 'report-go') {
+    const ta = card.querySelector('[data-report-text]');
+    const text = (ta?.value || '').trim();
+    if (text.length < 5) return setStatus($('#svc-action-msg'), 'مشکل رو یکم کامل‌تر بنویس تا بتونیم کمک کنیم');
+    btn.disabled = true;
+    setStatus($('#svc-action-msg'), 'در حال ارسال گزارش…', true);
+    try {
+      await api(`/api/my/services/${encodeURIComponent(code)}/report`, { method: 'POST', body: { text } });
+      setStatus($('#svc-action-msg'), '✅ گزارشت ثبت شد؛ سریع بررسی می‌کنیم و همین‌جا یا از پشتیبانی خبرت می‌کنیم', true);
+      loadMyServices(true);
+    } catch (err) {
+      setStatus($('#svc-action-msg'), err.message || 'خطا در ارسال گزارش');
+      btn.disabled = false;
+    }
     return;
   }
   let path = '', body = {}, doing = '', done = '';

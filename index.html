@@ -326,6 +326,13 @@
         <h2 class="section-title" data-reveal>شفاف و ساده:<br />هر گیگ فقط <em><span data-price-per-gb>۴٬۰۰۰</span> تومان</em></h2>
         <p class="section-sub" data-reveal>همه پلن‌ها <span data-plan-days>۳۰</span> روزه‌ان و شامل تحویل خودکار لینک اشتراک و همه لوکیشن‌ها میشن.</p>
 
+        <!-- انتخاب پنل (سرور) — فقط وقتی بیش از یک پنل فعال باشد نمایش داده می‌شود -->
+        <div class="panel-picker glass-card" id="panel-picker" data-reveal hidden>
+          <span class="panel-picker-title">🖥 پنل (سرور) اشتراک رو انتخاب کن:</span>
+          <div class="panel-opts" id="panel-opts" role="radiogroup" aria-label="انتخاب پنل"></div>
+          <small class="panel-picker-note">قیمت‌ها و اشتراک نهایی بر اساس پنلی است که اینجا انتخاب می‌کنی.</small>
+        </div>
+
         <div class="plans-grid">
           <article class="plan-card glass-card" data-plan-gb="20" data-reveal data-hover>
             <h3>استارت</h3>
@@ -419,6 +426,7 @@
                 <button type="button" data-ck-gb="200">۲۰۰ گیگ</button>
               </div>
             </div>
+            <p class="ck-panel-name" id="ck-panel-name" hidden></p>
             <div class="ck-price">
               <span>مبلغ قابل پرداخت (<span data-plan-days>۳۰</span> روزه)</span>
               <strong id="ck-price">۲۰۰٬۰۰۰ تومان</strong>
