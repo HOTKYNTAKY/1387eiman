@@ -766,3 +766,19 @@ body.menu-open #bottom-nav{transform:translateY(120%)}
 .svc-report textarea:focus{outline:none;border-color:rgba(216,180,106,.65)}
 .svc-report .btn{align-self:flex-start}
 .svc-report-open{color:var(--ink-dim)}
+
+/* ── منوی موبایل (v29): اسکرول داخلی آزاد + جا شدن در صفحات کوتاه ── */
+#mobile-menu{scrollbar-width:none}
+#mobile-menu::-webkit-scrollbar{display:none}
+@media (max-height:780px){
+  .mm-wrap{gap:9px}
+  .mm-head{margin-bottom:0}
+  .mm-logo{font-size:16px}
+  .mm-nav{gap:8px}
+  .mm-item{padding:9px 12px;border-radius:16px;font-size:14.5px}
+  .mm-user{padding:10px 12px;border-radius:17px}
+  .mm-user-txt strong{font-size:15px}
+  .mm-ico{width:40px;height:40px;border-radius:13px}
+  .mm-ico svg{width:20px;height:20px}
+  .mm-foot{display:none}
+}
