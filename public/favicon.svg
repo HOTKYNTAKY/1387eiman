@@ -7,6 +7,6 @@
     </linearGradient>
   </defs>
   <rect width="64" height="64" rx="14" fill="#050508"/>
-  <path d="M32 10 L52 52 H43.5 L32 30 L20.5 52 H12 Z" fill="url(#g)"/>
-  <ellipse cx="32" cy="38" rx="24" ry="6.5" fill="none" stroke="url(#g)" stroke-width="2" opacity=".8" transform="rotate(-14 32 38)"/>
+  <path d="M10 12 L32 54 L54 12 H43.5 L32 35.5 L20.5 12 Z" fill="url(#g)"/>
+  <ellipse cx="32" cy="26" rx="24" ry="6.5" fill="none" stroke="url(#g)" stroke-width="2" opacity=".8" transform="rotate(-14 32 26)"/>
 </svg>

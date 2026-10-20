@@ -1,0 +1,27 @@
+# NORKHIZ shop API — systemd unit.
+# install.sh renders this file (replacing __APPDIR__ and __NODE__)
+# to /etc/systemd/system/norkhiz-api.service and enables it.
+#
+# The service reads its settings (API_PORT …) from __APPDIR__/server/.env
+# and stores orders + secrets under __APPDIR__/server/data/ (chmod 700).
+[Unit]
+Description=NORKHIZ shop API (orders, admin, auto-provisioning)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+WorkingDirectory=__APPDIR__/server
+EnvironmentFile=-__APPDIR__/server/.env
+Environment=DATA_DIR=__APPDIR__/server/data
+ExecStart=__NODE__ server.mjs
+Restart=on-failure
+RestartSec=3
+# Light hardening (kept permissive enough for a single-app VPS):
+PrivateTmp=true
+NoNewPrivileges=true
+ProtectSystem=full
+ReadWritePaths=__APPDIR__/server/data
+
+[Install]
+WantedBy=multi-user.target

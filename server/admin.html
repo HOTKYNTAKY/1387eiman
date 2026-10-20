@@ -1,0 +1,848 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<meta name="robots" content="noindex,nofollow" />
+<title>پنل مدیریت ورتکس‌نت</title>
+<style>
+:root{--bg:#07070d;--card:rgba(255,255,255,.05);--brd:rgba(255,255,255,.11);--ink:#f4f1ea;--dim:rgba(244,241,234,.65);--faint:rgba(244,241,234,.4);--gold:#d8b46a;--cyan:#5ee7ff;--green:#4ade80;--red:#f87171;--amber:#fbbf24;--radius:16px}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:radial-gradient(900px 500px at 85% -10%,rgba(139,123,255,.16),transparent 60%),radial-gradient(700px 420px at 0% 110%,rgba(94,231,255,.09),transparent 60%),var(--bg);color:var(--ink);font-family:Tahoma,'Segoe UI',system-ui,sans-serif;font-size:15px;line-height:1.8;min-height:100vh}
+.wrap{width:min(980px,94vw);margin-inline:auto;padding:22px 0 70px}
+h1{font-size:21px}h2{font-size:17px;margin-bottom:14px}
+.card{background:var(--card);border:1px solid var(--brd);border-radius:var(--radius);padding:20px;backdrop-filter:blur(12px)}
+.center-card{max-width:460px;margin:9vh auto 0}
+.logo{font-family:Georgia,serif;letter-spacing:.28em;direction:ltr;text-align:center;font-size:20px;margin-bottom:6px}
+.logo b{color:var(--gold)}
+.sub{color:var(--dim);text-align:center;font-size:13px;margin-bottom:22px}
+label{display:block;font-size:12.5px;color:var(--dim);margin:14px 0 6px}
+input,textarea,select{width:100%;background:rgba(255,255,255,.05);border:1px solid var(--brd);border-radius:11px;padding:11px 13px;color:var(--ink);font:inherit;font-size:14.5px}
+input:focus,textarea:focus{outline:none;border-color:rgba(216,180,106,.65)}
+input[dir=ltr]{text-align:left}
+.btn{display:inline-flex;justify-content:center;align-items:center;gap:8px;border:0;border-radius:99px;padding:11px 22px;font:inherit;font-size:14px;font-weight:bold;cursor:pointer;transition:.25s}
+.btn:active{transform:scale(.97)}
+.btn-gold{background:linear-gradient(120deg,#e9cf94,var(--gold) 60%,#b08a3e);color:#14100a;width:100%}
+.btn-green{background:rgba(74,222,128,.15);color:var(--green);border:1px solid rgba(74,222,128,.45)}
+.btn-red{background:rgba(248,113,113,.1);color:var(--red);border:1px solid rgba(248,113,113,.4)}
+.btn-ghost{background:transparent;color:var(--dim);border:1px solid var(--brd)}
+.btn-sm{padding:8px 16px;font-size:13px}
+.btn[disabled]{opacity:.55;pointer-events:none}
+.msg{min-height:1.6em;font-size:13.5px;margin-top:12px}
+.msg.err{color:var(--red)}.msg.ok{color:var(--green)}
+header.top{display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap;margin:8px 0 18px}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:18px}
+.stat{background:var(--card);border:1px solid var(--brd);border-radius:14px;padding:14px;text-align:center}
+.stat strong{display:block;font-size:22px}
+.stat span{font-size:11.5px;color:var(--faint)}
+.tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+.tab{border:1px solid var(--brd);background:transparent;color:var(--dim);border-radius:99px;padding:7px 16px;font:inherit;font-size:13px;cursor:pointer}
+.tab.on{background:rgba(216,180,106,.16);color:var(--gold);border-color:rgba(216,180,106,.55)}
+.search{margin-bottom:16px}
+.order{background:var(--card);border:1px solid var(--brd);border-radius:var(--radius);padding:16px 18px;margin-bottom:12px}
+.order-head{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+.code{font-family:ui-monospace,Menlo,monospace;direction:ltr;font-weight:bold;color:var(--cyan);font-size:15px}
+.chip{font-size:11.5px;font-weight:bold;border-radius:99px;padding:2px 11px;border:1px solid}
+.chip.pending{color:var(--amber);border-color:rgba(251,191,36,.5);background:rgba(251,191,36,.08)}
+.chip.approved{color:var(--green);border-color:rgba(74,222,128,.5);background:rgba(74,222,128,.08)}
+.chip.rejected{color:var(--red);border-color:rgba(248,113,113,.5);background:rgba(248,113,113,.08)}
+.meta{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:4px 18px;margin-top:10px;font-size:13.5px;color:var(--dim)}
+.meta b{color:var(--ink);font-weight:normal}
+.ref{font-family:ui-monospace,Menlo,monospace;direction:ltr;display:inline-block}
+.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
+.sub-url{display:flex;gap:8px;margin-top:12px}
+.sub-url input{flex:1;font-size:12.5px}
+.perr{margin-top:10px;font-size:12.5px;color:var(--amber);background:rgba(251,191,36,.07);border:1px dashed rgba(251,191,36,.4);border-radius:10px;padding:8px 12px}
+.empty{text-align:center;color:var(--faint);padding:38px 0}
+.groups{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+.groups label{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--brd);border-radius:99px;padding:5px 13px;margin:0;cursor:pointer;font-size:13px;color:var(--ink)}
+.groups input{width:auto}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:0 16px}
+.view{display:none}.view.on{display:block}
+.tag{display:inline-block;padding:2px 10px;border-radius:99px;border:1px solid var(--brd);font-size:11.5px;background:rgba(255,255,255,.05)}
+.tag.gold{color:#e9cf94;border-color:rgba(216,180,106,.55)}
+.tag.green{color:#7fe7b2;border-color:rgba(110,231,183,.5)}
+.disc-row{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;border:1px solid var(--brd);border-radius:14px;padding:12px 14px;margin-bottom:10px;background:rgba(255,255,255,.03)}
+.disc-main{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.disc-actions{display:flex;gap:8px}
+.small{font-size:12px;color:var(--faint)}
+.stats{grid-template-columns:repeat(auto-fit,minmax(130px,1fr))}
+.badge{display:inline-flex;min-width:20px;height:20px;padding:0 6px;border-radius:99px;background:var(--red);color:#fff;font-size:11px;font-weight:bold;align-items:center;justify-content:center}
+.badge[hidden]{display:none}
+.chat-layout{display:grid;grid-template-columns:270px 1fr;gap:16px;align-items:start}
+.chat-item{display:block;width:100%;text-align:right;background:rgba(255,255,255,.04);border:1px solid var(--brd);border-radius:13px;padding:11px 14px;margin-bottom:9px;cursor:pointer;color:var(--ink);font:inherit}
+.chat-item:hover{border-color:rgba(216,180,106,.5)}
+.chat-item.on{border-color:rgba(216,180,106,.7);background:rgba(216,180,106,.09)}
+.chat-item .ci-top{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.chat-item .ci-last{display:block;color:var(--faint);font-size:12.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:2px}
+.chat-msgs{display:flex;flex-direction:column;gap:8px;height:340px;overflow-y:auto;padding:6px 2px;margin-bottom:12px}
+.bub{max-width:82%;padding:8px 13px;border-radius:15px;font-size:14px;line-height:1.75;white-space:pre-wrap;word-break:break-word}
+.bub small{display:block;font-size:10px;opacity:.55;margin-top:3px}
+.bub.user{align-self:flex-start;background:rgba(255,255,255,.07);border:1px solid var(--brd);border-bottom-right-radius:5px}
+.bub.admin{align-self:flex-end;background:rgba(216,180,106,.18);border:1px solid rgba(216,180,106,.4);border-bottom-left-radius:5px}
+.chat-send{display:flex;gap:9px}
+.chat-send input{flex:1}
+.chat-head{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+@media(max-width:760px){.chat-layout{grid-template-columns:1fr}}
+@media(max-width:640px){.stats{grid-template-columns:repeat(2,1fr)}.grid2{grid-template-columns:1fr}.order{padding:14px}}
+.bub{position:relative;touch-action:pan-y}
+.bub.snap{transition:transform .26s ease}
+.bub-q{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;border-right:3px solid rgba(216,180,106,.85);background:rgba(0,0,0,.22);border-radius:9px;padding:6px 10px;margin-bottom:7px;font-size:12px;line-height:1.7;color:var(--faint);white-space:normal;word-break:break-word}
+.bub-q b{display:block;font-size:11px;color:#e8c97e}
+textarea{width:100%;background:rgba(255,255,255,.05);border:1px solid var(--brd);border-radius:12px;padding:11px 14px;color:var(--ink);font:inherit;resize:vertical}
+textarea:focus{outline:none;border-color:rgba(216,180,106,.6)}
+.chat-reply-bar{align-items:center;gap:10px;padding:9px 12px;margin-bottom:10px;border:1px solid rgba(216,180,106,.4);border-radius:12px;background:rgba(216,180,106,.07)}
+.chat-reply-bar .crb-mid{flex:1;min-width:0;display:flex;flex-direction:column}
+.chat-reply-bar .crb-mid b{font-size:11px;color:#e8c97e}
+#chat-reply-text-admin{font-size:12.5px;color:var(--faint);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#chat-thread{position:relative}
+#chat-swipe-hint-admin{position:absolute;right:6px;width:34px;height:34px;border-radius:50%;display:grid;place-items:center;background:rgba(216,180,106,.18);border:1px solid rgba(216,180,106,.55);color:#e8c97e;font-size:16px;opacity:0;pointer-events:none;z-index:5}
+#chat-swipe-hint-admin.go{background:rgba(216,180,106,.45);color:#141414}
+.cmt-text{white-space:pre-wrap;word-break:break-word;line-height:1.9;font-size:14px;margin-top:6px}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- راه‌اندازی اولیه -->
+  <section id="v-setup" class="view">
+    <div class="card center-card">
+      <p class="logo">VORTEXNET<b>®</b></p>
+      <p class="sub">راه‌اندازی اولیه پنل مدیریت — فقط همین یک بار</p>
+      <label for="s-pass">رمز عبور ادمین (حداقل ۱۰ کاراکتر)</label>
+      <input id="s-pass" type="password" dir="ltr" autocomplete="new-password" placeholder="••••••••••" />
+      <label for="s-pgurl">آدرس پنل پاسارگارد (بدون ‎/dashboard‎ در انتها)</label>
+      <input id="s-pgurl" type="url" dir="ltr" placeholder="https://node3.norkhizstudio.com:8000" />
+      <label for="s-pgkey">کلید API پاسارگارد (pg_key_…) — یا پایین‌تر با یوزر/رمز پنل</label>
+      <input id="s-pgkey" type="password" dir="ltr" placeholder="pg_key_xxxxxxxx" />
+      <label for="s-pguser">نام کاربری پنل (اگر کلید API نداری، مثل پنل نمایندگی)</label>
+      <input id="s-pguser" type="text" dir="ltr" placeholder="panel username" autocomplete="off" />
+      <label for="s-pgpass">رمز پنل</label>
+      <input id="s-pgpass" type="password" dir="ltr" placeholder="panel password" autocomplete="new-password" />
+      <p class="small" style="margin-top:8px">کلید را از پنل پاسارگارد ← تنظیمات ← API Keys بساز (با دسترسی ساخت کاربر). این اطلاعات فقط روی سرور خودت ذخیره می‌شود. آدرس پنل و کلید را بعداً هم از بخش تنظیمات می‌توانی عوض کنی.</p>
+      <button class="btn btn-gold" id="s-btn" style="margin-top:18px">ساخت حساب ادمین و ورود</button>
+      <p class="msg" id="s-msg"></p>
+    </div>
+  </section>
+
+  <!-- ورود -->
+  <section id="v-login" class="view">
+    <div class="card center-card">
+      <p class="logo">VORTEXNET<b>®</b></p>
+      <p class="sub">ورود به پنل مدیریت فروش</p>
+      <label for="l-pass">رمز عبور</label>
+      <input id="l-pass" type="password" dir="ltr" autocomplete="current-password" />
+      <button class="btn btn-gold" id="l-btn" style="margin-top:18px">ورود</button>
+      <p class="msg" id="l-msg"></p>
+    </div>
+  </section>
+
+  <!-- پنل -->
+  <section id="v-panel" class="view">
+    <header class="top">
+      <h1>📦 سفارش‌های ورتکس‌نت</h1>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="btn btn-ghost btn-sm" id="btn-chats">💬 چت‌ها <span class="badge" id="chat-badge" hidden>۰</span></button>
+        <button class="btn btn-ghost btn-sm" id="btn-settings">⚙️ تنظیمات</button>
+        <button class="btn btn-ghost btn-sm" id="btn-discounts">🎟 کدهای تخفیف</button>
+        <button class="btn btn-ghost btn-sm" id="btn-news">📢 اطلاعیه‌ها</button>
+        <button class="btn btn-ghost btn-sm" id="btn-comments">📝 نظرات <span class="badge" id="comments-badge" hidden>۰</span></button>
+        <button class="btn btn-ghost btn-sm" id="btn-refresh">⟳ تازه‌سازی</button>
+        <a class="btn btn-ghost btn-sm" href="__SITE_URL__" target="_blank" rel="noopener" style="text-decoration:none">🏠 برگشتن به صفحه اصلی</a>
+        <button class="btn btn-ghost btn-sm" id="btn-logout">خروج</button>
+      </div>
+    </header>
+
+    <div id="panel-main">
+      <div class="stats">
+        <div class="stat"><strong id="st-pending">۰</strong><span>در انتظار بررسی</span></div>
+        <div class="stat"><strong id="st-approved">۰</strong><span>تأیید شده</span></div>
+        <div class="stat"><strong id="st-rejected">۰</strong><span>رد شده</span></div>
+        <div class="stat"><strong id="st-revenue">۰</strong><span>فروش تأییدشده (تومان)</span></div>
+        <div class="stat"><strong id="st-users">۰</strong><span>کاربران ثبت‌نامی</span></div>
+      </div>
+      <div class="tabs" id="tabs">
+        <button class="tab on" data-status="">همه</button>
+        <button class="tab" data-status="pending">در انتظار</button>
+        <button class="tab" data-status="approved">تأیید شده</button>
+        <button class="tab" data-status="rejected">رد شده</button>
+      </div>
+      <input class="search" id="search" type="search" placeholder="جستجو: کد سفارش، نام مشتری یا نام کاربری…" />
+      <div id="orders"></div>
+    </div>
+
+    <div id="panel-settings" style="display:none">
+      <div class="card">
+        <h2>⚙️ تنظیمات فروشگاه</h2>
+        <div class="grid2">
+          <div><label for="set-price">قیمت هر گیگ (تومان)</label><input id="set-price" type="number" min="0" /></div>
+          <div><label for="set-days">مدت هر پلن (روز)</label><input id="set-days" type="number" min="1" /></div>
+          <div><label for="set-min">حداقل حجم خرید (گیگ)</label><input id="set-min" type="number" min="1" /></div>
+          <div><label for="set-cardnum">شماره کارت</label><input id="set-cardnum" type="text" dir="ltr" inputmode="numeric" /></div>
+          <div><label for="set-cardname">نام صاحب کارت</label><input id="set-cardname" type="text" /></div>
+        </div>
+        <h2 style="margin-top:26px">🔌 اتصال پاسارگارد</h2>
+        <label for="set-pgurl">آدرس پنل پاسارگارد (بدون ‎/dashboard‎ در انتها)</label>
+        <input id="set-pgurl" type="url" dir="ltr" placeholder="https://node3.norkhizstudio.com:8000" />
+        <label for="set-pgpub">آدرس عمومی لینک اشتراک (اختیاری)</label>
+        <input id="set-pgpub" type="url" dir="ltr" placeholder="https://node3.norkhizstudio.com:8000" />
+        <p class="small">فقط وقتی لازم است که API پنل را با IP یا دامنهٔ دیگری صدا بزنی؛ لینک اشتراک مشتری با این آدرس ساخته می‌شود. خالی = همان آدرس پنل.</p>
+        <label for="set-pgkey">کلید API (برای تغییر، کلید جدید را وارد کن)</label>
+        <input id="set-pgkey" type="password" dir="ltr" placeholder="" />
+        <label for="set-pguser">نام کاربری پنل — جایگزین کلید API (پنل نمایندگی)</label>
+        <input id="set-pguser" type="text" dir="ltr" placeholder="panel username" autocomplete="off" />
+        <label for="set-pgpass">رمز پنل (برای تغییر، رمز جدید را وارد کن)</label>
+        <input id="set-pgpass" type="password" dir="ltr" placeholder="" autocomplete="new-password" />
+        <p class="small">اگر کلید API داشته باشی همان استفاده می‌شود؛ وگرنه فروشگاه با نام کاربری/رمز پنل وارد پاسارگارد می‌شود. این اطلاعات فقط روی سرور خودت ذخیره می‌شود.</p>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:16px">
+          <button class="btn btn-ghost btn-sm" id="btn-testpg" type="button">🔍 تست اتصال و دریافت گروه‌ها</button>
+        </div>
+        <p class="small" style="margin-top:10px">گروه‌هایی که کاربر جدید داخلشان ساخته شود (هیچ‌کدام انتخاب نشود = همه گروه‌ها):</p>
+        <div class="groups" id="groups"><span class="small">اول «تست اتصال» را بزن</span></div>
+        <button class="btn btn-gold" id="btn-saveset" style="margin-top:22px">ذخیره تنظیمات</button>
+        <p class="msg" id="set-msg"></p>
+
+        <h2 style="margin-top:30px">🔑 تغییر رمز ادمین</h2>
+        <div class="grid2">
+          <div><label for="pw-old">رمز فعلی</label><input id="pw-old" type="password" dir="ltr" /></div>
+          <div><label for="pw-new">رمز جدید (۱۰+ کاراکتر)</label><input id="pw-new" type="password" dir="ltr" /></div>
+        </div>
+        <button class="btn btn-ghost btn-sm" id="btn-changepw" style="margin-top:14px">تغییر رمز</button>
+        <p class="msg" id="pw-msg"></p>
+
+        <h2 style="margin-top:30px">💾 بکاپ فروشگاه</h2>
+        <p class="small">بکاپ شامل تنظیمات، حساب مشتری‌ها، سفارش‌ها، چت‌ها و نشست‌هاست. این فایل اطلاعات حساسی دارد (از جمله رمزها و کلیدهای اتصال پنل)؛ فقط جای امن نگهش دار و برای کسی نفرست. هنگام وارد کردن بکاپ، اطلاعات فعلی جایگزین می‌شود و قبل از آن یک نسخهٔ امن خودکار روی سرور ذخیره می‌شود.</p>
+        <h3 style="margin-top:18px">⬇️ دانلود بکاپ</h3>
+        <a class="btn btn-ghost btn-sm" href="/api/admin/backup" style="text-decoration:none">دانلود بکاپ کامل (JSON)</a>
+        <h3 style="margin-top:22px">⬆️ وارد کردن بکاپ</h3>
+        <input id="backup-file" type="file" accept=".json,application/json" />
+        <div style="margin-top:10px"><button class="btn btn-ghost btn-sm" id="btn-import" type="button">وارد کردن بکاپ انتخاب‌شده</button></div>
+        <p class="msg" id="backup-msg"></p>
+        <button class="btn btn-ghost btn-sm" id="btn-back" style="margin-top:10px">← بازگشت به سفارش‌ها</button>
+      </div>
+    </div>
+
+    <div id="panel-discounts" style="display:none">
+      <div class="card">
+        <h2>🎟 کدهای تخفیف</h2>
+        <p class="small">کد بساز و به مشتری‌هات بده؛ موقع خرید واردش می‌کنن و مبلغ کارت‌به‌کارتشون کمتر می‌شه. روی هر سفارش هم می‌بینی با چه کدی و چقدر تخفیف گرفته. استفاده وقتی از ظرفیت کد کم می‌شه که سفارش ثبت بشه — اگه سفارشی رو رد کنی، ظرفیتش خودکار برمی‌گرده.</p>
+        <h3 style="margin-top:18px">➕ ساخت کد جدید</h3>
+        <div class="grid2">
+          <div><label for="disc-code">کد (بدون فاصله)</label><input id="disc-code" type="text" dir="ltr" placeholder="NEWYEAR20" autocomplete="off" /></div>
+          <div><label for="disc-type">نوع تخفیف</label>
+            <select id="disc-type"><option value="percent">درصدی٪</option><option value="fixed">مبلغ ثابت (تومان)</option></select></div>
+          <div><label for="disc-value">مقدار (درصد یا تومان)</label><input id="disc-value" type="number" min="1" dir="ltr" placeholder="20" /></div>
+          <div><label for="disc-max">حداکثر تعداد استفاده (خالی = نامحدود)</label><input id="disc-max" type="number" min="1" dir="ltr" placeholder="نامحدود" /></div>
+          <div><label for="disc-exp">تاریخ انقضا (اختیاری)</label><input id="disc-exp" type="date" dir="ltr" /></div>
+          <div><label for="disc-note">یادداشت (اختیاری)</label><input id="disc-note" type="text" placeholder="مثلاً کمپین عید" /></div>
+        </div>
+        <label style="display:flex;gap:8px;align-items:center;margin-top:12px"><input id="disc-once" type="checkbox" style="width:auto" /> هر مشتری فقط یک‌بار بتواند استفاده کند</label>
+        <button class="btn btn-gold" id="disc-create" style="margin-top:16px">ساخت کد تخفیف</button>
+        <p class="msg" id="disc-msg"></p>
+        <h3 style="margin-top:26px">کدهای ساخته‌شده</h3>
+        <div id="discounts-list"><p class="empty">در حال بارگذاری…</p></div>
+        <button class="btn btn-ghost btn-sm" id="btn-back3" style="margin-top:16px">← بازگشت به سفارش‌ها</button>
+      </div>
+    </div>
+
+    <div id="panel-news" style="display:none">
+      <div class="card">
+        <h2>📢 اطلاعیه‌های همگانی</h2>
+        <p class="small">اطلاعیه بنویس تا همهٔ بازدیدکننده‌های سایت ببینن — هم توی بخش «اطلاعیه‌ها»‌ی صفحه، هم بالای صفحهٔ اصلی به‌صورت نوار برجسته. اطلاعیهٔ «سنجاق‌شده» همیشه اول میاد و «مهم» با رنگ برجسته نشون داده می‌شه.</p>
+        <h3 style="margin-top:18px" id="ann-form-title">➕ اطلاعیه جدید</h3>
+        <label for="ann-title">عنوان</label>
+        <input id="ann-title" type="text" maxlength="120" placeholder="مثلاً: تخفیف ویژه این هفته" />
+        <label for="ann-body">متن اطلاعیه</label>
+        <textarea id="ann-body" rows="4" maxlength="2000" placeholder="متن کامل اطلاعیه…"></textarea>
+        <div class="grid2">
+          <div><label for="ann-level">اهمیت</label>
+            <select id="ann-level"><option value="normal">معمولی</option><option value="important">مهم (برجسته)</option></select></div>
+          <div><label style="display:flex;gap:8px;align-items:center;margin-top:26px"><input id="ann-pin" type="checkbox" style="width:auto" /> سنجاق شود (همیشه اول)</label></div>
+        </div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:16px;align-items:center">
+          <button class="btn btn-gold" id="ann-create">انتشار اطلاعیه</button>
+          <button class="btn btn-ghost btn-sm" id="ann-cancel-edit" style="display:none">لغو ویرایش</button>
+        </div>
+        <p class="msg" id="ann-msg"></p>
+        <h3 style="margin-top:26px">اطلاعیه‌ها</h3>
+        <div id="news-list-admin"><p class="empty">در حال بارگذاری…</p></div>
+        <button class="btn btn-ghost btn-sm" id="btn-back4" style="margin-top:16px">← بازگشت به سفارش‌ها</button>
+      </div>
+    </div>
+
+    <div id="panel-comments" style="display:none">
+      <div class="card">
+        <h2>📝 نظرات مشتریان</h2>
+        <p class="small">نظرهای مشتری‌ها اول اینجا میان و فقط با تأیید تو، <b>به‌صورت کاملاً ناشناس</b> (بدون اسم و اطلاعات نویسنده) توی سایت نمایش داده می‌شن. نام کاربری نویسنده رو فقط تو اینجا می‌بینی.</p>
+        <div id="comments-list" style="margin-top:16px"><p class="empty">در حال بارگذاری…</p></div>
+        <button class="btn btn-ghost btn-sm" id="btn-back5" style="margin-top:16px">← بازگشت به سفارش‌ها</button>
+      </div>
+    </div>
+
+    <div id="panel-chats" style="display:none">
+      <div class="card">
+        <h2>💬 گفت‌وگو با مشتری‌ها</h2>
+        <div class="chat-layout">
+          <div id="chat-list"><p class="empty">در حال بارگذاری…</p></div>
+          <div id="chat-thread" style="display:none">
+            <div class="chat-head">
+              <button class="btn btn-ghost btn-sm" id="chat-back" type="button">← همه گفت‌وگوها</button>
+              <b id="chat-with"></b>
+            </div>
+            <div class="chat-msgs" id="chat-msgs-admin"></div>
+            <div id="chat-swipe-hint-admin" aria-hidden="true">↩</div>
+            <div id="chat-reply-bar-admin" class="chat-reply-bar" style="display:none">
+              <span aria-hidden="true">↩️</span>
+              <span class="crb-mid"><b id="chat-reply-who-admin"></b><span id="chat-reply-text-admin"></span></span>
+              <button type="button" class="btn btn-ghost btn-sm" id="chat-reply-x-admin">✕</button>
+            </div>
+            <form class="chat-send" id="chat-form-admin">
+              <input id="chat-text" type="text" placeholder="پاسخت را بنویس…" autocomplete="off" />
+              <button class="btn btn-green btn-sm" type="submit">ارسال</button>
+            </form>
+          </div>
+        </div>
+        <button class="btn btn-ghost btn-sm" id="btn-back2" style="margin-top:16px">← بازگشت به سفارش‌ها</button>
+      </div>
+    </div>
+  </section>
+</div>
+
+<script>
+const $ = (s) => document.querySelector(s);
+const toFa = (n) => Math.round(Number(n) || 0).toLocaleString('fa-IR');
+const faDate = (iso) => iso ? new Date(iso).toLocaleString('fa-IR', { dateStyle: 'medium', timeStyle: 'short' }) : '—';
+const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+async function api(path, opts = {}) {
+  const res = await fetch(path, { headers: { 'Content-Type': 'application/json' }, ...opts, body: opts.body ? JSON.stringify(opts.body) : undefined });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(data.error || `خطای ${res.status}`);
+  return data;
+}
+function show(id) { document.querySelectorAll('.view').forEach((v) => v.classList.toggle('on', v.id === id)); }
+function msg(el, text, ok) { const e = $(el); e.textContent = text || ''; e.className = 'msg ' + (ok ? 'ok' : 'err'); }
+
+let curStatus = '', refreshTimer = null, allGroups = [], savedGroupIds = [];
+let chatTimer = null, curChatUser = null, adminMsgsCache = [], adminReplyTo = null;
+
+function showPanel(name) {
+  $('#panel-main').style.display = name === 'main' ? 'block' : 'none';
+  $('#panel-settings').style.display = name === 'settings' ? 'block' : 'none';
+  $('#panel-chats').style.display = name === 'chats' ? 'block' : 'none';
+  $('#panel-discounts').style.display = name === 'discounts' ? 'block' : 'none';
+  $('#panel-news').style.display = name === 'news' ? 'block' : 'none';
+  $('#panel-comments').style.display = name === 'comments' ? 'block' : 'none';
+}
+function setChatBadge(n) {
+  const b = $('#chat-badge');
+  if (!b) return;
+  b.hidden = !n;
+  b.textContent = toFa(n);
+  document.title = (n ? `(${toFa(n)}) ` : '') + 'پنل مدیریت ورتکس‌نت';
+}
+
+/* ── راه‌اندازی / ورود ── */
+function setCommentsBadge(n) {
+  const b = $('#comments-badge');
+  if (!b) return;
+  b.hidden = !n;
+  b.textContent = toFa(n);
+}
+$('#s-btn').onclick = async () => {
+  msg('#s-msg', '');
+  try {
+    await api('/api/admin/setup', { method: 'POST', body: { password: $('#s-pass').value, pgBaseUrl: $('#s-pgurl').value.trim(), pgApiKey: $('#s-pgkey').value.trim(), pgUsername: $('#s-pguser').value.trim(), pgPassword: $('#s-pgpass').value } });
+    enterPanel();
+  } catch (e) { msg('#s-msg', e.message); }
+};
+$('#l-btn').onclick = async () => {
+  msg('#l-msg', '');
+  try { await api('/api/admin/login', { method: 'POST', body: { password: $('#l-pass').value } }); enterPanel(); }
+  catch (e) { msg('#l-msg', e.message); }
+};
+$('#l-pass').addEventListener('keydown', (e) => e.key === 'Enter' && $('#l-btn').click());
+$('#btn-logout').onclick = async () => { await api('/api/admin/logout', { method: 'POST' }).catch(() => {}); clearInterval(refreshTimer); clearInterval(chatTimer); show('v-login'); };
+
+function enterPanel() {
+  show('v-panel');
+  showPanel('main');
+  loadOrders();
+  clearInterval(refreshTimer);
+  refreshTimer = setInterval(() => { if (!document.hidden && $('#panel-main').style.display !== 'none') loadOrders(true); }, 20000);
+  clearInterval(chatTimer);
+  chatTimer = setInterval(() => {
+    if (document.hidden) return;
+    pollChatsBadge();
+    if ($('#panel-chats').style.display !== 'none') {
+      loadChatList(true);
+      if (curChatUser) loadThread(curChatUser, true);
+    }
+  }, 8000);
+}
+
+/* ── سفارش‌ها ── */
+const STATUS_FA = { pending: 'در انتظار بررسی', approved: 'تأیید شده ✓', rejected: 'رد شده' };
+function orderCard(o) {
+  const acts = [];
+  if (o.status === 'pending') {
+    acts.push(`<button class="btn btn-green btn-sm" data-approve="${o.code}">✓ تأیید و ساخت کانفیگ</button>`);
+    acts.push(`<button class="btn btn-red btn-sm" data-reject="${o.code}">✕ رد کردن</button>`);
+  }
+  if (o.status === 'approved' && !o.pg?.subUrl) acts.push(`<button class="btn btn-green btn-sm" data-approve="${o.code}">🔁 تلاش دوباره برای ساخت</button>`);
+  return `<article class="order">
+    <div class="order-head">
+      <span class="code">${esc(o.code)}</span>
+      <span class="chip ${o.status}">${STATUS_FA[o.status] || o.status}</span>
+    </div>
+    <div class="meta">
+      <span>حجم: <b>${toFa(o.gb)} گیگ / ${toFa(o.days)} روز</b></span>
+      <span>مبلغ: <b>${toFa(o.price)} تومان</b></span>
+      ${o.discountAmount ? `<span>🎟 کد <b dir="ltr">${esc(o.discountCode || '')}</b>: ‏−${toFa(o.discountAmount)} تومان (قیمت اصلی ${toFa(o.price + o.discountAmount)})</span>` : ''}
+      ${o.username ? `<span>کاربر: <b dir="ltr">@${esc(o.username)}</b>${o.name && o.name !== o.username ? ` · <b>${esc(o.name)}</b>` : ''}</span>` : `<span>نام: <b>${esc(o.name || '—')}</b></span>`}
+      ${o.last4 ? `<span>۴ رقم آخر کارت پرداخت: <b class="ref">•••• ${esc(o.last4)}</b></span>` : ''}
+      ${o.refCode ? `<span>کد پیگیری پرداخت: <b class="ref">${esc(o.refCode)}</b></span>` : ''}
+      <span>زمان ثبت: <b>${faDate(o.createdAt)}</b></span>
+      ${o.decidedAt ? `<span>زمان تصمیم: <b>${faDate(o.decidedAt)}</b></span>` : ''}
+      ${o.note ? `<span>توضیح خریدار: <b>${esc(o.note)}</b></span>` : ''}
+      ${o.status === 'rejected' && o.rejectReason ? `<span>علت رد: <b>${esc(o.rejectReason)}</b></span>` : ''}
+      ${o.pg?.username ? `<span>یوزر پنل: <b class="ref">${esc(o.pg.username)}</b></span>` : ''}
+    </div>
+    ${o.provisionError ? `<p class="perr">⚠️ آخرین خطای ساخت کانفیگ (${faDate(o.provisionError.at)}): ${esc(o.provisionError.message)}</p>` : ''}
+    ${o.pg?.subUrl ? `<div class="sub-url"><input readonly dir="ltr" value="${esc(o.pg.subUrl)}" /><button class="btn btn-ghost btn-sm" data-copy="${esc(o.pg.subUrl)}">کپی لینک اشتراک</button></div>` : ''}
+    ${acts.length ? `<div class="actions">${acts.join('')}</div>` : ''}
+  </article>`;
+}
+async function loadOrders(silent) {
+  try {
+    const q = encodeURIComponent($('#search').value.trim());
+    const data = await api(`/api/admin/orders?status=${curStatus}&q=${q}`);
+    $('#st-pending').textContent = toFa(data.counts.pending);
+    $('#st-approved').textContent = toFa(data.counts.approved);
+    $('#st-rejected').textContent = toFa(data.counts.rejected);
+    $('#st-revenue').textContent = toFa(data.counts.revenueApproved);
+    const su = $('#st-users'); if (su) su.textContent = toFa(data.counts.users || 0);
+    setChatBadge(data.counts.chatsUnread || 0);
+    setCommentsBadge(data.counts.commentsPending || 0);
+    $('#orders').innerHTML = data.orders.length ? data.orders.map(orderCard).join('') : '<p class="empty">سفارشی نیست 🌙</p>';
+  } catch (e) { if (!silent) alert(e.message); }
+}
+$('#tabs').addEventListener('click', (e) => {
+  const t = e.target.closest('.tab'); if (!t) return;
+  document.querySelectorAll('.tab').forEach((x) => x.classList.toggle('on', x === t));
+  curStatus = t.dataset.status; loadOrders();
+});
+let searchT; $('#search').addEventListener('input', () => { clearTimeout(searchT); searchT = setTimeout(loadOrders, 350); });
+$('#btn-refresh').onclick = () => loadOrders();
+
+$('#orders').addEventListener('click', async (e) => {
+  const copyBtn = e.target.closest('[data-copy]');
+  if (copyBtn) { try { await navigator.clipboard.writeText(copyBtn.dataset.copy); copyBtn.textContent = 'کپی شد ✓'; setTimeout(() => copyBtn.textContent = 'کپی لینک اشتراک', 2000); } catch {} return; }
+  const ap = e.target.closest('[data-approve]');
+  const rj = e.target.closest('[data-reject]');
+  if (ap) {
+    if (!confirm(`سفارش ${ap.dataset.approve} تأیید شود و کانفیگ ساخته شود؟`)) return;
+    ap.disabled = true; ap.textContent = 'در حال ساخت کانفیگ…';
+    try { await api(`/api/admin/orders/${ap.dataset.approve}/approve`, { method: 'POST' }); loadOrders(); }
+    catch (err) { alert(err.message); loadOrders(); }
+  }
+  if (rj) {
+    const reason = prompt('علت رد (اختیاری — به خریدار نمایش داده می‌شود):', 'رسید پرداخت قابل تأیید نبود');
+    if (reason === null) return;
+    rj.disabled = true;
+    try { await api(`/api/admin/orders/${rj.dataset.reject}/reject`, { method: 'POST', body: { reason } }); loadOrders(); }
+    catch (err) { alert(err.message); loadOrders(); }
+  }
+});
+
+/* ── تنظیمات ── */
+$('#btn-settings').onclick = async () => {
+  showPanel('settings');
+  msg('#set-msg', '');
+  try {
+    const s = await api('/api/admin/settings');
+    $('#set-price').value = s.pricePerGB; $('#set-days').value = s.planDays; $('#set-min').value = s.minGB;
+    $('#set-cardnum').value = s.cardNumber; $('#set-cardname').value = s.cardName;
+    $('#set-pgurl').value = s.pgBaseUrl || '';
+    $('#set-pgpub').value = s.pgPublicBaseUrl || '';
+    $('#set-pgkey').value = ''; $('#set-pgkey').placeholder = s.hasApiKey ? `فعلی: ${s.pgApiKeyMasked} (برای تغییر، جدید را بنویس)` : 'pg_key_…';
+    $('#set-pguser').value = s.pgUsername || '';
+    $('#set-pgpass').value = ''; $('#set-pgpass').placeholder = s.hasPgPassword ? 'فعلی: ذخیره شده (برای تغییر، جدید را بنویس)' : 'panel password';
+    savedGroupIds = s.pgGroupIds || [];
+    renderGroups();
+  } catch (e) { msg('#set-msg', e.message); }
+};
+$('#btn-back').onclick = () => { showPanel('main'); loadOrders(); };
+$('#btn-back2').onclick = () => { showPanel('main'); loadOrders(); };
+/* ── کدهای تخفیف ── */
+const discTypeFa = (d) => d.type === 'percent' ? `${toFa(d.value)}٪` : `${toFa(d.value)} تومان`;
+async function loadDiscounts() {
+  const box = $('#discounts-list');
+  try {
+    const { discounts } = await api('/api/admin/discounts');
+    if (!discounts.length) { box.innerHTML = '<p class="empty">هنوز کد تخفیفی ساخته نشده.</p>'; return; }
+    box.innerHTML = discounts.map((d) => `
+      <div class="disc-row">
+        <div class="disc-main">
+          <b dir="ltr">${esc(d.code)}</b>
+          <span class="tag gold">تخفیف ${discTypeFa(d)}</span>
+          ${d.active ? '<span class="tag green">فعال</span>' : '<span class="tag">غیرفعال</span>'}
+          <span class="small">مصرف: ${toFa(d.usedCount)}${d.maxUses ? ` از ${toFa(d.maxUses)}` : ' (نامحدود)'}${d.oncePerUser ? ' · هر مشتری یک‌بار' : ''}${d.expiresAt ? ` · تا ${faDate(d.expiresAt)}` : ''}${d.note ? ` · ${esc(d.note)}` : ''}</span>
+        </div>
+        <div class="disc-actions">
+          <button class="btn btn-ghost btn-sm" data-disc-toggle="${esc(d.id)}">${d.active ? '⏸ غیرفعال' : '▶ فعال'}</button>
+          <button class="btn btn-ghost btn-sm" data-disc-del="${esc(d.id)}">🗑 حذف</button>
+        </div>
+      </div>`).join('');
+  } catch (e) { box.innerHTML = `<p class="empty">خطا: ${esc(e.message)}</p>`; }
+}
+$('#btn-discounts').onclick = () => { showPanel('discounts'); loadDiscounts(); };
+$('#btn-back3').onclick = () => { showPanel('main'); loadOrders(); };
+$('#disc-create').onclick = async () => {
+  const btn = $('#disc-create'); btn.disabled = true;
+  try {
+    const maxRaw = $('#disc-max').value.trim();
+    const expRaw = $('#disc-exp').value;
+    await api('/api/admin/discounts', { method: 'POST', body: {
+      code: $('#disc-code').value.trim(),
+      type: $('#disc-type').value,
+      value: Number($('#disc-value').value),
+      maxUses: maxRaw === '' ? null : Number(maxRaw),
+      expiresAt: expRaw ? new Date(expRaw + 'T23:59:59').toISOString() : null,
+      oncePerUser: $('#disc-once').checked,
+      note: $('#disc-note').value.trim(),
+    }});
+    msg('#disc-msg', 'کد تخفیف ساخته شد ✓', true);
+    $('#disc-code').value = ''; $('#disc-value').value = ''; $('#disc-max').value = ''; $('#disc-exp').value = ''; $('#disc-note').value = ''; $('#disc-once').checked = false;
+    loadDiscounts();
+  } catch (e) { msg('#disc-msg', e.message, false); }
+  finally { btn.disabled = false; }
+};
+document.addEventListener('click', async (e) => {
+  const tg = e.target.closest('[data-disc-toggle]');
+  const del = e.target.closest('[data-disc-del]');
+  if (!tg && !del) return;
+  try {
+    if (tg) { await api(`/api/admin/discounts/${tg.dataset.discToggle}/toggle`, { method: 'POST' }); loadDiscounts(); }
+    if (del) {
+      if (!confirm('این کد تخفیف حذف بشه؟ (سفارش‌های قبلی دست نمی‌خورن)')) return;
+      await api(`/api/admin/discounts/${del.dataset.discDel}/delete`, { method: 'POST' });
+      loadDiscounts();
+    }
+  } catch (err) { alert(err.message); }
+});
+
+$('#btn-chats').onclick = () => { showPanel('chats'); loadChatList(); };
+function renderGroups() {
+  const box = $('#groups');
+  if (!allGroups.length) { box.innerHTML = '<span class="small">اول «تست اتصال» را بزن</span>'; return; }
+  box.innerHTML = allGroups.map((g) => `<label><input type="checkbox" value="${g.id}" ${savedGroupIds.includes(g.id) ? 'checked' : ''}/> ${esc(g.name)} <span class="small">#${g.id}</span></label>`).join('');
+}
+$('#btn-testpg').onclick = async () => {
+  msg('#set-msg', 'در حال تست اتصال…', true);
+  try {
+    const r = await api('/api/admin/test-pg', { method: 'POST', body: { pgBaseUrl: $('#set-pgurl').value.trim(), pgApiKey: $('#set-pgkey').value.trim(), pgUsername: $('#set-pguser').value.trim(), pgPassword: $('#set-pgpass').value } });
+    allGroups = r.groups || [];
+    renderGroups();
+    msg('#set-msg', `اتصال برقرار شد ✓ — ${toFa(allGroups.length)} گروه پیدا شد`, true);
+  } catch (e) { msg('#set-msg', e.message); }
+};
+$('#btn-saveset').onclick = async () => {
+  const pgGroupIds = [...document.querySelectorAll('#groups input:checked')].map((i) => Number(i.value));
+  try {
+    await api('/api/admin/settings', { method: 'POST', body: {
+      pricePerGB: Number($('#set-price').value), planDays: Number($('#set-days').value), minGB: Number($('#set-min').value),
+      cardNumber: $('#set-cardnum').value.trim(), cardName: $('#set-cardname').value.trim(),
+      pgBaseUrl: $('#set-pgurl').value.trim(), pgPublicBaseUrl: $('#set-pgpub').value.trim(), pgApiKey: $('#set-pgkey').value.trim(), pgUsername: $('#set-pguser').value.trim(), pgPassword: $('#set-pgpass').value, pgGroupIds,
+    } });
+    msg('#set-msg', 'تنظیمات ذخیره شد ✓', true);
+  } catch (e) { msg('#set-msg', e.message); }
+};
+$('#btn-changepw').onclick = async () => {
+  try {
+    await api('/api/admin/change-password', { method: 'POST', body: { oldPassword: $('#pw-old').value, newPassword: $('#pw-new').value } });
+    msg('#pw-msg', 'رمز تغییر کرد ✓', true); $('#pw-old').value = ''; $('#pw-new').value = '';
+  } catch (e) { msg('#pw-msg', e.message); }
+};
+/* ── بکاپ: وارد کردن ── */
+$('#btn-import').onclick = async () => {
+  const f = $('#backup-file').files && $('#backup-file').files[0];
+  if (!f) { msg('#backup-msg', 'اول فایل بکاپ را انتخاب کن'); return; }
+  let data;
+  try { data = JSON.parse(await f.text()); } catch { msg('#backup-msg', 'فایل انتخاب‌شده JSON معتبر نیست'); return; }
+  if (!data || data.kind !== 'shop-backup' || !data.files) { msg('#backup-msg', 'این فایل، بکاپ فروشگاه ورتکس‌نت نیست'); return; }
+  if (!confirm('با وارد کردن این بکاپ، تنظیمات و اطلاعات فعلی فروشگاه جایگزین می‌شود. ادامه می‌دهی؟')) return;
+  msg('#backup-msg', 'در حال وارد کردن بکاپ…', true);
+  try {
+    const r = await api('/api/admin/backup/import', { method: 'POST', body: data });
+    msg('#backup-msg', `بکاپ وارد شد ✓ (${(r.imported || []).join('، ')}) — در حال تازه‌سازی…`, true);
+    setTimeout(() => location.reload(), 900);
+  } catch (e) { msg('#backup-msg', e.message); }
+};
+
+/* ── چت با مشتری‌ها ── */
+async function pollChatsBadge() {
+  try { const r = await api('/api/admin/chats'); setChatBadge(r.totalUnread || 0); } catch {}
+}
+async function loadChatList(silent) {
+  try {
+    const r = await api('/api/admin/chats');
+    setChatBadge(r.totalUnread || 0);
+    const box = $('#chat-list');
+    if (!r.chats.length) { box.innerHTML = '<p class="empty">هنوز گفت‌وگویی نیست 💬</p>'; return; }
+    box.innerHTML = r.chats.map((c) => `
+      <button type="button" class="chat-item ${c.userId === curChatUser ? 'on' : ''}" data-chat="${esc(c.userId)}">
+        <span class="ci-top"><b dir="ltr">@${esc(c.username)}</b>${c.unread ? `<span class="badge">${toFa(c.unread)}</span>` : ''}</span>
+        <span class="ci-last">${c.last ? (c.last.from === 'admin' ? 'شما: ' : '') + esc(c.last.text) : ''}</span>
+        <span class="ci-last">${c.name ? esc(c.name) + ' · ' : ''}${faDate(c.updatedAt)}</span>
+      </button>`).join('');
+  } catch (e) { if (!silent) alert(e.message); }
+}
+function scrollChatDown(smooth) {
+  const el = $('#chat-msgs-admin');
+  el.scrollTo({ top: el.scrollHeight, behavior: smooth ? 'smooth' : 'auto' });
+}
+async function loadThread(userId, silent) {
+  try {
+    const r = await api(`/api/admin/chats/${userId}`);
+    curChatUser = userId;
+    $('#chat-thread').style.display = 'block';
+    $('#chat-with').innerHTML = `گفت‌وگو با <bdi dir="ltr">@${esc(r.username)}</bdi>`;
+    adminMsgsCache = r.messages || [];
+    const box = $('#chat-msgs-admin');
+    const nearBottom = box.scrollHeight - box.scrollTop - box.clientHeight < 140;
+    const prevCount = box.children.length;
+    box.innerHTML = r.messages.length
+      ? r.messages.map((m) => `<div class="bub ${m.from}" data-mid="${esc(m.id)}">${m.replyTo ? `<span class="bub-q"><b>${m.replyTo.from === 'admin' ? 'شما' : 'پیام کاربر'}</b>${esc(m.replyTo.text)}</span>` : ''}${esc(m.text)}<small>${faDate(m.at)}${m.from === 'admin' && m.read ? ' · خوانده شد ✓✓' : ''}</small></div>`).join('')
+      : '<p class="empty">پیامی نیست</p>';
+    if (!silent || nearBottom || box.children.length !== prevCount) scrollChatDown(false);
+    if (!silent && window.innerWidth <= 760) $('#chat-list').style.display = 'none';
+    pollChatsBadge();
+  } catch (e) { if (!silent) alert(e.message); }
+}
+$('#chat-list').addEventListener('click', (e) => {
+  const it = e.target.closest('[data-chat]');
+  if (it) loadThread(it.dataset.chat);
+});
+$('#chat-back').onclick = () => {
+  curChatUser = null;
+  $('#chat-thread').style.display = 'none';
+  $('#chat-list').style.display = 'block';
+  loadChatList();
+};
+$('#chat-form-admin').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  if (!curChatUser) return;
+  const inp = $('#chat-text');
+  const text = inp.value.trim();
+  if (!text) return;
+  inp.value = '';
+  try {
+    await api(`/api/admin/chats/${curChatUser}`, { method: 'POST', body: { text, replyToId: adminReplyTo ? adminReplyTo.id : undefined } });
+    clearAdminReply();
+    loadThread(curChatUser, true); loadChatList(true);
+  } catch (err) { alert(err.message); inp.value = text; }
+});
+
+/* ── شروع ── */
+/* ── اطلاعیه‌های همگانی ── */
+let editingAnnId = null;
+let annCache = [];
+function annRowFa(a) {
+  return `<div class="disc-row">
+    <div class="disc-main">
+      <b>${esc(a.title)}</b>
+      ${a.active ? '<span class="tag green">منتشر شده</span>' : '<span class="tag">مخفی</span>'}
+      ${a.pinned ? '<span class="tag gold">سنجاق شده</span>' : ''}
+      ${a.level === 'important' ? '<span class="tag">مهم</span>' : ''}
+      <span class="small">${faDate(a.createdAt)}</span>
+      <div class="cmt-text">${esc(a.body)}</div>
+    </div>
+    <div class="disc-actions">
+      <button class="btn btn-ghost btn-sm" data-ann-edit="${esc(a.id)}">✏️ ویرایش</button>
+      <button class="btn btn-ghost btn-sm" data-ann-pin="${esc(a.id)}">${a.pinned ? '📌 برداشتن سنجاق' : '📌 سنجاق'}</button>
+      <button class="btn btn-ghost btn-sm" data-ann-toggle="${esc(a.id)}">${a.active ? '⏸ مخفی' : '▶ انتشار'}</button>
+      <button class="btn btn-ghost btn-sm" data-ann-del="${esc(a.id)}">🗑 حذف</button>
+    </div>
+  </div>`;
+}
+async function loadNewsAdmin() {
+  const box = $('#news-list-admin');
+  try {
+    const { announcements } = await api('/api/admin/announcements');
+    annCache = announcements || [];
+    box.innerHTML = annCache.length ? annCache.map(annRowFa).join('') : '<p class="empty">هنوز اطلاعیه‌ای منتشر نشده.</p>';
+  } catch (e) { box.innerHTML = `<p class="empty">خطا: ${esc(e.message)}</p>`; }
+}
+function resetAnnForm() {
+  editingAnnId = null;
+  $('#ann-title').value = ''; $('#ann-body').value = ''; $('#ann-level').value = 'normal'; $('#ann-pin').checked = false;
+  $('#ann-form-title').textContent = '➕ اطلاعیه جدید';
+  $('#ann-create').textContent = 'انتشار اطلاعیه';
+  $('#ann-cancel-edit').style.display = 'none';
+}
+$('#btn-news').onclick = () => { showPanel('news'); loadNewsAdmin(); };
+$('#btn-back4').onclick = () => { showPanel('main'); loadOrders(); };
+$('#ann-cancel-edit').onclick = resetAnnForm;
+$('#ann-create').onclick = async () => {
+  const btn = $('#ann-create'); btn.disabled = true;
+  try {
+    const body = { title: $('#ann-title').value.trim(), body: $('#ann-body').value.trim(), level: $('#ann-level').value, pinned: $('#ann-pin').checked };
+    if (editingAnnId) {
+      await api(`/api/admin/announcements/${editingAnnId}/edit`, { method: 'POST', body });
+      msg('#ann-msg', 'اطلاعیه ویرایش شد ✓', true);
+    } else {
+      await api('/api/admin/announcements', { method: 'POST', body });
+      msg('#ann-msg', 'اطلاعیه منتشر شد ✓', true);
+    }
+    resetAnnForm();
+    loadNewsAdmin();
+  } catch (e) { msg('#ann-msg', e.message, false); }
+  finally { btn.disabled = false; }
+};
+
+/* ── نظرات مشتریان (تأیید پیش از انتشار ناشناس) ── */
+async function loadCommentsAdmin() {
+  const box = $('#comments-list');
+  try {
+    const r = await api('/api/admin/comments');
+    setCommentsBadge(r.pending || 0);
+    const list = r.comments || [];
+    box.innerHTML = list.length ? list.map((c) => `
+      <div class="disc-row">
+        <div class="disc-main">
+          <b dir="ltr">@${esc(c.username || '؟')}</b>
+          ${c.status === 'pending' ? '<span class="tag gold">در انتظار تأیید</span>' : '<span class="tag green">منتشر شده (ناشناس)</span>'}
+          <span class="small">${faDate(c.createdAt)}</span>
+          <div class="cmt-text">${esc(c.text)}</div>
+        </div>
+        <div class="disc-actions">
+          ${c.status === 'pending'
+            ? `<button class="btn btn-green btn-sm" data-cmt-approve="${esc(c.id)}">✓ تأیید و انتشار</button>`
+            : `<button class="btn btn-ghost btn-sm" data-cmt-hide="${esc(c.id)}">⏸ برداشتن از سایت</button>`}
+          <button class="btn btn-ghost btn-sm" data-cmt-del="${esc(c.id)}">🗑 حذف</button>
+        </div>
+      </div>`).join('') : '<p class="empty">هنوز نظری ثبت نشده.</p>';
+  } catch (e) { box.innerHTML = `<p class="empty">خطا: ${esc(e.message)}</p>`; }
+}
+$('#btn-comments').onclick = () => { showPanel('comments'); loadCommentsAdmin(); };
+$('#btn-back5').onclick = () => { showPanel('main'); loadOrders(); };
+document.addEventListener('click', async (e) => {
+  const annEdit = e.target.closest('[data-ann-edit]');
+  const annPin = e.target.closest('[data-ann-pin]');
+  const annTg = e.target.closest('[data-ann-toggle]');
+  const annDel = e.target.closest('[data-ann-del]');
+  const cmtAp = e.target.closest('[data-cmt-approve]');
+  const cmtHide = e.target.closest('[data-cmt-hide]');
+  const cmtDel = e.target.closest('[data-cmt-del]');
+  if (!annEdit && !annPin && !annTg && !annDel && !cmtAp && !cmtHide && !cmtDel) return;
+  try {
+    if (annEdit) {
+      const a = annCache.find((x) => x.id === annEdit.dataset.annEdit);
+      if (!a) return;
+      editingAnnId = a.id;
+      $('#ann-title').value = a.title; $('#ann-body').value = a.body; $('#ann-level').value = a.level || 'normal'; $('#ann-pin').checked = !!a.pinned;
+      $('#ann-form-title').textContent = '✏️ ویرایش اطلاعیه';
+      $('#ann-create').textContent = 'ذخیره ویرایش';
+      $('#ann-cancel-edit').style.display = 'inline-block';
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+    if (annPin) { await api(`/api/admin/announcements/${annPin.dataset.annPin}/pin`, { method: 'POST' }); loadNewsAdmin(); }
+    if (annTg) { await api(`/api/admin/announcements/${annTg.dataset.annToggle}/toggle`, { method: 'POST' }); loadNewsAdmin(); }
+    if (annDel) {
+      if (!confirm('این اطلاعیه حذف بشه؟')) return;
+      await api(`/api/admin/announcements/${annDel.dataset.annDel}/delete`, { method: 'POST' });
+      if (editingAnnId === annDel.dataset.annDel) resetAnnForm();
+      loadNewsAdmin();
+    }
+    if (cmtAp) { await api(`/api/admin/comments/${cmtAp.dataset.cmtApprove}/approve`, { method: 'POST' }); loadCommentsAdmin(); }
+    if (cmtHide) { await api(`/api/admin/comments/${cmtHide.dataset.cmtHide}/hide`, { method: 'POST' }); loadCommentsAdmin(); }
+    if (cmtDel) {
+      if (!confirm('این نظر حذف بشه؟')) return;
+      await api(`/api/admin/comments/${cmtDel.dataset.cmtDel}/delete`, { method: 'POST' });
+      loadCommentsAdmin();
+    }
+  } catch (err) { alert(err.message); }
+});
+
+/* ── ریپلای با سوایپ (ادمین) ── */
+const adminReplyBar = $('#chat-reply-bar-admin');
+const adminSwipeHint = $('#chat-swipe-hint-admin');
+function setAdminReply(id) {
+  const src = adminMsgsCache.find((m) => m.id === id);
+  if (!src) return;
+  adminReplyTo = { id: src.id };
+  $('#chat-reply-who-admin').textContent = src.from === 'admin' ? 'پاسخ به پیام خودت' : 'پاسخ به پیام کاربر';
+  $('#chat-reply-text-admin').textContent = String(src.text || '').slice(0, 90);
+  if (adminReplyBar) adminReplyBar.style.display = 'flex';
+  $('#chat-text')?.focus();
+}
+function clearAdminReply() {
+  adminReplyTo = null;
+  if (adminReplyBar) adminReplyBar.style.display = 'none';
+}
+const admReplyX = $('#chat-reply-x-admin');
+if (admReplyX) admReplyX.addEventListener('click', clearAdminReply);
+(() => {
+  const box = $('#chat-msgs-admin');
+  if (!box) return;
+  let sw = null;
+  const THRESH = 54;
+  const pullOf = (dx) => (dx >= 0 ? 0 : dx < -70 ? -70 + (dx + 70) * 0.22 : dx);
+  const reset = (el) => {
+    if (adminSwipeHint) adminSwipeHint.style.opacity = '0';
+    if (!el) return;
+    el.classList.add('snap');
+    el.style.transform = '';
+    setTimeout(() => el.classList.remove('snap'), 280);
+  };
+  box.addEventListener('pointerdown', (e) => {
+    const el = e.target.closest('.bub[data-mid]');
+    if (!el || (e.pointerType === 'mouse' && e.button !== 0)) return;
+    sw = { el, id: el.dataset.mid, x0: e.clientX, y0: e.clientY, pid: e.pointerId, on: false, pull: 0 };
+  });
+  box.addEventListener('pointermove', (e) => {
+    if (!sw || e.pointerId !== sw.pid) return;
+    const dx = e.clientX - sw.x0;
+    const dy = e.clientY - sw.y0;
+    if (!sw.on) {
+      if (Math.abs(dx) < 9 || Math.abs(dy) > Math.abs(dx) * 1.15) return;
+      sw.on = true;
+      try { sw.el.setPointerCapture(e.pointerId); } catch {}
+      sw.el.classList.remove('snap');
+    }
+    sw.pull = pullOf(dx);
+    sw.el.style.transform = `translateX(${sw.pull}px)`;
+    if (adminSwipeHint) {
+      const tr = $('#chat-thread').getBoundingClientRect();
+      const br = sw.el.getBoundingClientRect();
+      adminSwipeHint.style.top = `${br.top - tr.top + br.height / 2}px`;
+      const k = Math.min(1, -sw.pull / THRESH);
+      adminSwipeHint.style.opacity = String(k);
+      adminSwipeHint.style.transform = `translateY(-50%) scale(${0.7 + 0.3 * k})`;
+      adminSwipeHint.classList.toggle('go', -sw.pull >= THRESH);
+    }
+  });
+  const finish = (e) => {
+    if (!sw || e.pointerId !== sw.pid) return;
+    const { el, id, on, pull } = sw;
+    sw = null;
+    if (on && -pull >= THRESH) setAdminReply(id);
+    reset(el);
+  };
+  box.addEventListener('pointerup', finish);
+  box.addEventListener('pointercancel', finish);
+  window.addEventListener('pointerup', () => { if (sw) { const el = sw.el; sw = null; reset(el); } }, { passive: true });
+})();
+
+/* ── شروع ── */
+(async () => {
+  try {
+    const st = await api('/api/admin/state');
+    if (!st.configured) show('v-setup');
+    else if (st.authed) enterPanel();
+    else show('v-login');
+  } catch { show('v-login'); }
+})();
+</script>
+</body>
+</html>

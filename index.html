@@ -1,42 +1,128 @@
 <!doctype html>
-<html lang="en">
+<html lang="fa" dir="rtl">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <title>AETHER® — Futuristic Luxury Digital Experiences</title>
-  <meta name="description" content="AETHER is an award-level digital studio crafting cinematic WebGL, 3D and interactive luxury experiences for the world's boldest brands." />
+  <title>ورتکس‌نت — خرید کانفیگ پرسرعت | هر گیگ فقط ۴٬۰۰۰ تومان</title>
+  <meta name="description" content="خرید آنلاین کانفیگ اختصاصی پرسرعت با پینگ پایین؛ هر گیگ فقط ۴٬۰۰۰ تومان. پرداخت کارت‌به‌کارت، تحویل خودکار بعد از تأیید، پیگیری آنلاین سفارش." />
   <meta name="theme-color" content="#050508" />
   <meta property="og:type" content="website" />
-  <meta property="og:title" content="AETHER® — Futuristic Luxury Digital Experiences" />
-  <meta property="og:description" content="Cinematic 3D, WebGL and interactive design at an Awwwards level." />
+  <meta property="og:title" content="ورتکس‌نت — اینترنت آزاد با سرعت نور" />
+  <meta property="og:description" content="کانفیگ پرسرعت و بدون قطعی؛ هر گیگ فقط ۴٬۰۰۰ تومان ✦ خرید مستقیم از سایت ✦ تحویل فوری" />
   <meta property="og:image" content="/images/work-nebula.jpg" />
   <meta name="twitter:card" content="summary_large_image" />
   <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
-  <link rel="preload" as="image" href="/images/work-nebula.jpg" />
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400&family=Space+Grotesk:wght@300;400;500;600&family=Inter:wght@300;400;500&display=swap" rel="stylesheet" />
 </head>
 <body>
-  <a class="skip-link" href="#main">Skip to content</a>
+  <a class="skip-link" href="#main">رفتن به محتوای اصلی</a>
 
-  <!-- ══════════ PRELOADER ══════════ -->
-  <div id="preloader" role="status" aria-label="Loading">
+  <!-- کتابخانه آیکون‌های اختصاصی (SVG) -->
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+    <defs>
+      <symbol id="ic-home" viewBox="0 0 24 24">
+        <path d="m3 9.2 9-7.2 9 7.2V20a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2Z"/>
+        <path d="M9 22v-9.5h6V22"/>
+      </symbol>
+      <symbol id="ic-orders" viewBox="0 0 24 24">
+        <path d="M5 2.5v19l2.3-1.3L9.7 21.5l2.3-1.3 2.3 1.3 2.4-1.3L19 21.5v-19l-2.3 1.3-2.4-1.3-2.3 1.3-2.3-1.3L7.3 3.8Z"/>
+        <path d="M8.5 8h7M8.5 12h7M8.5 16h4"/>
+      </symbol>
+      <symbol id="ic-service" viewBox="0 0 24 24">
+        <rect width="19" height="7.5" x="2.5" y="2.8" rx="2"/>
+        <rect width="19" height="7.5" x="2.5" y="13.7" rx="2"/>
+        <path d="M6.2 6.5h.01M6.2 17.4h.01"/>
+        <path d="M14.5 6.5h3M14.5 17.4h3"/>
+      </symbol>
+      <symbol id="ic-chat" viewBox="0 0 24 24">
+        <path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/>
+        <circle cx="8" cy="11" r="1.15" fill="currentColor" stroke="none"/>
+        <circle cx="12" cy="11" r="1.15" fill="currentColor" stroke="none"/>
+        <circle cx="16" cy="11" r="1.15" fill="currentColor" stroke="none"/>
+      </symbol>
+      <symbol id="ic-speed" viewBox="0 0 24 24">
+        <path d="M3.3 19a10 10 0 1 1 17.4 0"/>
+        <path d="m12 12.6 3.9-4.7"/>
+        <path d="M12 4.4v2.2M5.4 7.2l1.5 1.6M18.6 7.2l-1.5 1.6"/>
+        <circle cx="12" cy="12.6" r="1.5" fill="currentColor" stroke="none"/>
+      </symbol>
+      <symbol id="ic-shield" viewBox="0 0 24 24">
+        <path d="M12 2.8 5 5.2v5.6c0 4.6 3 8.4 7 10.4 4-2 7-5.8 7-10.4V5.2Z"/>
+        <rect x="9.1" y="11" width="5.8" height="4.7" rx="1.2"/>
+        <path d="M10.3 11V9.6a1.7 1.7 0 0 1 3.4 0V11"/>
+        <circle cx="12" cy="13.35" r="0.95" fill="currentColor" stroke="none"/>
+      </symbol>
+      <symbol id="ic-devices" viewBox="0 0 24 24">
+        <rect x="2.4" y="4.4" width="13.2" height="9.6" rx="1.8"/>
+        <path d="M9 14v6M5.4 20h7.2"/>
+        <rect x="15.9" y="9.4" width="5.7" height="10.6" rx="1.6"/>
+        <path d="M18.75 17.5h.01"/>
+      </symbol>
+      <symbol id="ic-auto" viewBox="0 0 24 24">
+        <path d="M5.4 8h13.2l-1.1 12.1a1.9 1.9 0 0 1-1.9 1.7H8.4a1.9 1.9 0 0 1-1.9-1.7Z"/>
+        <path d="M9 10.5V6.8a3 3 0 0 1 6 0v3.7"/>
+        <path d="M12.9 11.7 10.4 16h1.9l-.9 3.4 3.4-4.6h-2Z" fill="currentColor" stroke="none"/>
+      </symbol>
+      <symbol id="ic-user" viewBox="0 0 24 24">
+        <circle cx="12" cy="8.1" r="3.7"/>
+        <path d="M4.6 20.4c1.2-3.5 4-5.1 7.4-5.1s6.2 1.6 7.4 5.1"/>
+      </symbol>
+      <symbol id="ic-close" viewBox="0 0 24 24">
+        <path d="M6 6l12 12M18 6L6 18"/>
+      </symbol>
+      <symbol id="ic-sparkle" viewBox="0 0 24 24">
+        <path d="M10.5 3.2 12 7.9l4.7 1.5-4.7 1.5-1.5 4.7-1.5-4.7-4.7-1.5L9 7.9Z"/>
+        <path d="m17.9 14.9.8 2.2 2.2.8-2.2.8-.8 2.2-.8-2.2-2.2-.8 2.2-.8Z"/>
+      </symbol>
+      <symbol id="ic-tag" viewBox="0 0 24 24">
+        <path d="M3.5 12.3V4.8a1.3 1.3 0 0 1 1.3-1.3h7.5l8.2 8.2a1.8 1.8 0 0 1 0 2.6l-6.2 6.2a1.8 1.8 0 0 1-2.6 0Z"/>
+        <circle cx="7.8" cy="7.8" r="1.25" fill="currentColor" stroke="none"/>
+      </symbol>
+      <symbol id="ic-steps" viewBox="0 0 24 24">
+        <path d="M9.5 6H20M9.5 12H20M9.5 18H20"/>
+        <path d="m3.8 5.4 1 1 2-2M3.8 11.4l1 1 2-2M3.8 17.4l1 1 2-2"/>
+      </symbol>
+      <symbol id="ic-search" viewBox="0 0 24 24">
+        <circle cx="10.6" cy="10.6" r="6.4"/>
+        <path d="m15.2 15.2 5 5"/>
+      </symbol>
+      <symbol id="ic-faq" viewBox="0 0 24 24">
+        <circle cx="12" cy="12" r="8.8"/>
+        <path d="M9.7 9.3a2.5 2.5 0 1 1 3.5 2.2c-.8.3-1.2.8-1.2 1.8"/>
+        <circle cx="12" cy="16.9" r="1.1" fill="currentColor" stroke="none"/>
+      </symbol>
+      <symbol id="ic-chevron" viewBox="0 0 24 24">
+        <path d="m14.6 5.4-6.2 6.6 6.2 6.6"/>
+      </symbol>
+      <symbol id="ic-mega" viewBox="0 0 24 24">
+        <path d="m3 11 18-5v12L3 14v-3Z"/>
+        <path d="M11.6 16.8a3 3 0 1 1-5.8-1.6"/>
+      </symbol>
+      <symbol id="ic-reply" viewBox="0 0 24 24">
+        <path d="m9 17-5-5 5-5"/>
+        <path d="M20 18v-2a4 4 0 0 0-4-4H4"/>
+      </symbol>
+      <symbol id="ic-quote" viewBox="0 0 24 24">
+        <path fill="currentColor" stroke="none" d="M10.2 7.6C7 8.1 5 10.4 5 13.7V17h5.2v-5.2H7.7c.2-1.3 1-2.1 2.5-2.5V7.6Zm9 0c-3.2.5-5.2 2.8-5.2 6.1V17h5.2v-5.2h-2.5c.2-1.3 1-2.1 2.5-2.5V7.6Z"/>
+      </symbol>
+    </defs>
+  </svg>
+
+  <!-- ══════════ پری‌لودر ══════════ -->
+  <div id="preloader" role="status" aria-label="در حال بارگذاری">
     <div class="loader-inner">
-      <div class="loader-logo" aria-hidden="true">AETHER<span>®</span></div>
+      <div class="loader-logo" aria-hidden="true">VORTEXNET<span>®</span></div>
       <div class="loader-bar" aria-hidden="true"><span id="loader-bar-fill"></span></div>
       <div class="loader-meta">
-        <span>CALIBRATING EXPERIENCE</span>
-        <span id="loader-count">00</span>
+        <span>در حال اتصال به دنیای آزاد…</span>
+        <span id="loader-count">۰۰</span>
       </div>
     </div>
     <div class="loader-curtain" aria-hidden="true"></div>
   </div>
 
-  <!-- Fluid page-transition wipe -->
-  <div id="page-wipe" aria-hidden="true"><span>AETHER®</span></div>
+  <div id="page-wipe" aria-hidden="true"><span>VORTEXNET®</span></div>
 
-  <!-- ══════════ WEBGL CANVAS + ATMOSPHERE ══════════ -->
+  <!-- ══════════ پس‌زمینه سه‌بعدی ══════════ -->
   <canvas id="webgl" aria-hidden="true"></canvas>
   <div class="bg-fallback" aria-hidden="true">
     <span class="blob blob-a"></span><span class="blob blob-b"></span><span class="blob blob-c"></span>
@@ -44,303 +130,710 @@
   <div class="vignette" aria-hidden="true"></div>
   <div class="noise" aria-hidden="true"></div>
 
-  <!-- Custom cursor (fine pointers only, JS-driven) -->
   <div id="cursor-ring" aria-hidden="true"></div>
   <div id="cursor-dot" aria-hidden="true"></div>
 
-  <!-- ══════════ NAVIGATION ══════════ -->
+  <!-- ══════════ ناوبری ══════════ -->
   <header id="site-nav">
     <div id="scroll-progress" aria-hidden="true"></div>
-    <nav class="nav-inner" aria-label="Main navigation">
-      <a href="#hero" class="logo nav-link" data-hover>AETHER<span>®</span></a>
+    <nav class="nav-inner" aria-label="ناوبری اصلی">
+      <a href="#hero" class="logo nav-link" data-hover>VORTEXNET<span>®</span></a>
       <ul class="nav-links">
-        <li><a class="nav-link" data-hover href="#manifesto">Manifesto</a></li>
-        <li><a class="nav-link" data-hover href="#services">Services</a></li>
-        <li><a class="nav-link" data-hover href="#works">Works</a></li>
-        <li><a class="nav-link" data-hover href="#process">Process</a></li>
+        <li><a class="nav-link" data-hover href="#features">ویژگی‌ها</a></li>
+        <li><a class="nav-link" data-hover href="#plans">تعرفه‌ها</a></li>
+        <li><a class="nav-link" data-hover href="#steps">نحوه خرید</a></li>
+        <li><a class="nav-link" data-hover href="#faq">سوالات متداول</a></li>
+        <li><a class="nav-link" data-hover href="#track">پیگیری سفارش</a></li>
       </ul>
-      <a href="#contact" class="btn btn-small magnetic nav-link" data-hover><span class="btn-label">Start a Project</span><span class="btn-arrow" aria-hidden="true">↗</span></a>
-      <button id="menu-btn" aria-label="Open menu" aria-expanded="false" aria-controls="mobile-menu" data-hover>
+      <a href="#checkout" class="btn btn-small btn-primary magnetic nav-link" data-hover>
+        <span class="btn-label">خرید کانفیگ</span><span class="btn-arrow" aria-hidden="true">↙</span>
+      </a>
+      <button type="button" class="btn btn-small btn-ghost" id="nav-account" data-hover>
+        <svg class="btn-ico" aria-hidden="true"><use href="#ic-user"/></svg>
+        <span class="btn-label" id="nav-account-label">ورود / ثبت‌نام</span>
+      </button>
+      <button id="menu-btn" aria-label="باز کردن منو" aria-expanded="false" aria-controls="mobile-menu" data-hover>
         <span></span><span></span>
       </button>
     </nav>
   </header>
 
   <div id="mobile-menu" aria-hidden="true">
-    <nav aria-label="Mobile navigation">
-      <a class="nav-link" href="#manifesto">Manifesto</a>
-      <a class="nav-link" href="#services">Services</a>
-      <a class="nav-link" href="#works">Works</a>
-      <a class="nav-link" href="#process">Process</a>
-      <a class="nav-link" href="#contact">Contact</a>
-    </nav>
-    <p class="mobile-menu-foot">AETHER® — Crafted beyond gravity</p>
+    <div class="mm-wrap">
+      <div class="mm-head mm-fade">
+        <span class="mm-logo" aria-hidden="true">VORTEXNET<span>®</span></span>
+        <button type="button" id="mm-close" aria-label="بستن منو" data-hover>
+          <svg aria-hidden="true"><use href="#ic-close"/></svg>
+        </button>
+      </div>
+      <a href="#account" id="mm-account" class="mm-user mm-fade" data-hover>
+        <span class="mm-ico"><svg aria-hidden="true"><use href="#ic-user"/></svg></span>
+        <span class="mm-user-txt">
+          <strong id="mm-account-label">ورود / ثبت‌نام</strong>
+          <small id="mm-account-sub">برای خرید و مشاهده سرویس خود وارد شوید</small>
+        </span>
+        <svg class="mm-chev" aria-hidden="true"><use href="#ic-chevron"/></svg>
+      </a>
+      <nav class="mm-nav" aria-label="منوی موبایل">
+        <a class="mm-item nav-link mm-fade" style="--acc:139,123,255" href="#features" data-hover>
+          <span class="mm-ico"><svg aria-hidden="true"><use href="#ic-sparkle"/></svg></span>
+          <span>ویژگی‌ها</span>
+          <svg class="mm-chev" aria-hidden="true"><use href="#ic-chevron"/></svg>
+        </a>
+        <a class="mm-item nav-link mm-fade" style="--acc:216,180,106" href="#plans" data-hover>
+          <span class="mm-ico"><svg aria-hidden="true"><use href="#ic-tag"/></svg></span>
+          <span>تعرفه‌ها</span>
+          <svg class="mm-chev" aria-hidden="true"><use href="#ic-chevron"/></svg>
+        </a>
+        <a class="mm-item mm-cta nav-link mm-fade" href="#checkout" data-hover>
+          <span class="mm-ico"><svg aria-hidden="true"><use href="#ic-auto"/></svg></span>
+          <span>خرید کانفیگ</span>
+          <svg class="mm-chev" aria-hidden="true"><use href="#ic-chevron"/></svg>
+        </a>
+        <a class="mm-item nav-link mm-fade" style="--acc:94,231,255" href="#steps" data-hover>
+          <span class="mm-ico"><svg aria-hidden="true"><use href="#ic-steps"/></svg></span>
+          <span>نحوه خرید</span>
+          <svg class="mm-chev" aria-hidden="true"><use href="#ic-chevron"/></svg>
+        </a>
+        <a class="mm-item nav-link mm-fade" style="--acc:110,231,183" href="#track" data-hover>
+          <span class="mm-ico"><svg aria-hidden="true"><use href="#ic-search"/></svg></span>
+          <span>پیگیری سفارش</span>
+          <svg class="mm-chev" aria-hidden="true"><use href="#ic-chevron"/></svg>
+        </a>
+        <a class="mm-item nav-link mm-fade" style="--acc:139,123,255" href="#faq" data-hover>
+          <span class="mm-ico"><svg aria-hidden="true"><use href="#ic-faq"/></svg></span>
+          <span>سوالات متداول</span>
+          <svg class="mm-chev" aria-hidden="true"><use href="#ic-chevron"/></svg>
+        </a>
+        <a class="mm-item nav-link mm-fade" style="--acc:255,159,110" href="#news" data-hover>
+          <span class="mm-ico"><svg aria-hidden="true"><use href="#ic-mega"/></svg></span>
+          <span>اطلاعیه‌ها</span>
+          <svg class="mm-chev" aria-hidden="true"><use href="#ic-chevron"/></svg>
+        </a>
+        <a class="mm-item nav-link mm-fade" style="--acc:255,209,110" href="#reviews" data-hover>
+          <span class="mm-ico"><svg aria-hidden="true"><use href="#ic-quote"/></svg></span>
+          <span>نظرات مشتریان</span>
+          <svg class="mm-chev" aria-hidden="true"><use href="#ic-chevron"/></svg>
+        </a>
+        <button type="button" class="mm-item mm-fade" style="--acc:94,231,255" id="mm-support" data-hover>
+          <span class="mm-ico"><svg aria-hidden="true"><use href="#ic-chat"/></svg></span>
+          <span>پشتیبانی آنلاین</span>
+          <svg class="mm-chev" aria-hidden="true"><use href="#ic-chevron"/></svg>
+        </button>
+      </nav>
+      <p class="mm-foot mm-fade">✦ هر گیگ فقط <strong><span data-price-per-gb>۴٬۰۰۰</span> تومان</strong> — تحویل فوری ✦</p>
+    </div>
   </div>
 
   <main id="main">
 
-    <!-- ══════════ HERO ══════════ -->
-    <section id="hero" class="hero" aria-label="Introduction">
+    <!-- ══════════ هیرو ══════════ -->
+    <section id="hero" class="hero" aria-label="معرفی">
       <div class="hero-content">
-        <p class="eyebrow hero-anim"><span class="eyebrow-line" aria-hidden="true"></span> Digital Luxury Studio — Est. 2026</p>
-        <h1 class="hero-title" aria-label="We craft gravity-defying digital luxury">
-          <span class="ht-line"><span class="ht-word" data-split>WE CRAFT</span></span>
-          <span class="ht-line"><em class="ht-word" data-split>gravity—defying</em></span>
-          <span class="ht-line"><span class="ht-word" data-split>DIGITAL LUXURY</span></span>
+        <button type="button" id="ann-pill" class="ann-pill" hidden data-hover aria-label="آخرین اطلاعیه">
+          <svg class="ic-sm" aria-hidden="true"><use href="#ic-mega"/></svg>
+          <span id="ann-pill-text"></span>
+          <span id="ann-pill-x" class="ann-pill-x" title="بستن">✕</span>
+        </button>
+        <p class="price-chip hero-anim">🔥 هر گیگ فقط <strong><span data-price-per-gb>۴٬۰۰۰</span> تومان</strong> — بدون هزینه پنهان</p>
+        <h1 class="hero-title">
+          <span class="ht-line"><span class="ht-inner">اینترنت آزاد،</span></span>
+          <span class="ht-line"><span class="ht-inner grad">با سرعت نور</span></span>
+          <span class="ht-line"><span class="ht-inner">بدون قطعی</span></span>
         </h1>
         <p class="hero-sub hero-anim">
-          Cinematic WebGL worlds, morphing 3D matter and interfaces that breathe —
-          engineered for brands that refuse to be ordinary.
+          کانفیگ اختصاصی پرسرعت با پینگ پایین و اتصال پایدار، روی همه دستگاه‌ها و همه اپراتورها.
+          همین‌جا آنلاین بخر، چند دقیقه بعد وصلی — به همین سادگی.
         </p>
         <div class="hero-ctas hero-anim">
-          <a href="#works" class="btn btn-primary magnetic nav-link" data-hover><span class="btn-label">Explore the Works</span><span class="btn-arrow" aria-hidden="true">↗</span></a>
-          <a href="#manifesto" class="btn btn-ghost magnetic nav-link" data-hover><span class="btn-label">Our Manifesto</span></a>
+          <a href="#plans" class="btn btn-primary magnetic nav-link" data-hover><span class="btn-label">مشاهده تعرفه‌ها</span><span class="btn-arrow" aria-hidden="true">↙</span></a>
+          <a href="#track" class="btn btn-ghost magnetic nav-link" data-hover><span class="btn-label">پیگیری سفارش</span></a>
         </div>
-      </div>
-
-      <div class="hero-side hero-anim" aria-hidden="true">
-        <span>SCROLL TO DESCEND</span>
-        <span class="hero-side-line"></span>
-        <span>N 40.4093° — E 49.8671°</span>
+        <ul class="trust-row hero-anim" aria-label="مزیت‌های کلیدی">
+          <li>⚡ تحویل فوری بعد از تأیید</li>
+          <li>🛒 خرید مستقیم از سایت</li>
+          <li>📱 همه دستگاه‌ها و اپراتورها</li>
+        </ul>
       </div>
 
       <div class="hero-foot hero-anim">
         <div class="scroll-cue" aria-hidden="true"><span></span></div>
         <ul class="hero-mini-stats">
-          <li><strong data-count="120">0</strong><span>Projects shipped</span></li>
-          <li><strong data-count="18">0</strong><span>Intl. awards</span></li>
-          <li><strong data-count="40">0</strong><span>M+ impressions</span></li>
+          <li><strong data-count="4000" data-count-key="pricePerGB">۰</strong><span>تومان / هر گیگ</span></li>
+          <li><strong data-count="30" data-count-key="planDays">۰</strong><span>روز اعتبار پلن</span></li>
+          <li><strong data-count="5">۰</strong><span>دقیقه تحویل</span></li>
         </ul>
       </div>
     </section>
 
-    <!-- ══════════ MARQUEE ══════════ -->
+    <!-- ══════════ نوار متحرک ══════════ -->
     <div class="marquee" aria-hidden="true">
       <div class="marquee-track">
-        <span>WEBGL ✦ THREE.JS ✦ GSAP ✦ CINEMATIC 3D ✦ INTERACTIVE LUXURY ✦ MOTION DESIGN ✦&nbsp;</span>
-        <span>WEBGL ✦ THREE.JS ✦ GSAP ✦ CINEMATIC 3D ✦ INTERACTIVE LUXURY ✦ MOTION DESIGN ✦&nbsp;</span>
+        <span>اینترنت آزاد ✦ سرعت نور ✦ بدون قطعی ✦ پینگ پایین ✦ تحویل فوری ✦ خرید مستقیم از سایت ✦&nbsp;</span>
+        <span>اینترنت آزاد ✦ سرعت نور ✦ بدون قطعی ✦ پینگ پایین ✦ تحویل فوری ✦ خرید مستقیم از سایت ✦&nbsp;</span>
       </div>
     </div>
 
-    <!-- ══════════ MANIFESTO ══════════ -->
-    <section id="manifesto" class="section manifesto" aria-label="Manifesto">
+    <!-- ══════════ ویژگی‌ها ══════════ -->
+    <section id="features" class="section features" aria-label="ویژگی‌ها">
       <div class="container">
-        <p class="section-label" data-reveal><span>01</span> — Manifesto</p>
-        <h2 class="manifesto-text" data-words>
-          We believe a website should not be read. It should be felt — a living organism of light,
-          matter and motion that responds to every glance, every scroll, every heartbeat.
+        <p class="section-label" data-reveal><span>۰۱</span> — چرا ورتکس‌نت؟</p>
+        <h2 class="statement" data-words>
+          دسترسی آزاد به اینترنت حق توست. ما با سرورهای پرقدرت اروپایی مسیری ساختیم سریع، امن و بدون قطعی تا بدون مرز وصل بشی.
         </h2>
-        <div class="manifesto-grid">
-          <p data-reveal>
-            AETHER fuses real-time 3D, shader-driven visuals and obsessive typography into
-            experiences that behave more like cinema than software. Every pixel is choreographed;
-            every millisecond of motion is intentional.
-          </p>
-          <p data-reveal>
-            From morphing liquid metals to particle constellations reacting to your cursor,
-            we build digital objects with physical soul — then optimise them ruthlessly so they
-            fly on any device, anywhere on Earth.
-          </p>
+
+        <div class="cards-grid">
+          <article class="glass-card tilt" data-reveal data-hover>
+            <span class="card-num">/ ۰۱</span>
+            <div class="card-icon" aria-hidden="true"><svg><use href="#ic-speed"/></svg></div>
+            <h3>سرعت بالا، پینگ پایین</h3>
+            <p>سرورهای قدرتمند آلمان با پهنای باند بالا و مسیر بهینه‌شده؛ مناسب گیم آنلاین، استریم، تماس تصویری و دانلود سنگین.</p>
+            <ul><li>گیم و استریم</li><li>بدون افت سرعت</li></ul>
+          </article>
+
+          <article class="glass-card tilt" data-reveal data-hover>
+            <span class="card-num">/ ۰۲</span>
+            <div class="card-icon" aria-hidden="true"><svg><use href="#ic-shield"/></svg></div>
+            <h3>امن و حفظ حریم خصوصی</h3>
+            <p>ترافیکت کاملاً رمزنگاری میشه و هیچ لاگی از فعالیتت ذخیره نمی‌کنیم؛ با خیال راحت و ناشناس بچرخ.</p>
+            <ul><li>رمزنگاری کامل</li><li>سیاست بدون لاگ</li></ul>
+          </article>
+
+          <article class="glass-card tilt" data-reveal data-hover>
+            <span class="card-num">/ ۰۳</span>
+            <div class="card-icon" aria-hidden="true"><svg><use href="#ic-devices"/></svg></div>
+            <h3>روی همه دستگاه‌ها</h3>
+            <p>اندروید، آیفون، ویندوز و مک؛ با همراه اول، ایرانسل، رایتل و اینترنت خونه. راه‌اندازی زیر یک دقیقه.</p>
+            <ul><li>لینک اشتراک آماده</li><li>همه اپراتورها</li></ul>
+          </article>
+
+          <article class="glass-card tilt" data-reveal data-hover>
+            <span class="card-num">/ ۰۴</span>
+            <div class="card-icon" aria-hidden="true"><svg><use href="#ic-auto"/></svg></div>
+            <h3>خرید و تحویل خودکار</h3>
+            <p>یه حساب بساز، از همین سایت بخر و به‌محض تأیید پرداخت، کانفیگت خودکار ساخته میشه و توی «سرویس من» تحویلش می‌گیری — با حجم باقی‌موندهٔ زنده.</p>
+            <ul><li>پیگیری آنلاین</li><li>تحویل خودکار</li></ul>
+          </article>
         </div>
       </div>
       <div class="orb orb-a" data-parallax="-18" aria-hidden="true"></div>
     </section>
 
-    <!-- ══════════ SERVICES ══════════ -->
-    <section id="services" class="section services" aria-label="Services">
+    <!-- ══════════ تعرفه‌ها ══════════ -->
+    <section id="plans" class="section plans" aria-label="تعرفه‌ها">
       <div class="container">
-        <p class="section-label" data-reveal><span>02</span> — Capabilities</p>
-        <h2 class="section-title" data-reveal>Engineered <em>wonder</em>,<br />delivered as a service.</h2>
+        <p class="section-label" data-reveal><span>۰۲</span> — تعرفه‌ها</p>
+        <h2 class="section-title" data-reveal>شفاف و ساده:<br />هر گیگ فقط <em><span data-price-per-gb>۴٬۰۰۰</span> تومان</em></h2>
+        <p class="section-sub" data-reveal>همه پلن‌ها <span data-plan-days>۳۰</span> روزه‌ان و شامل تحویل خودکار لینک اشتراک و همه لوکیشن‌ها میشن.</p>
 
-        <div class="cards-grid">
-          <article class="glass-card tilt" data-reveal data-hover>
-            <span class="card-num">/ 01</span>
-            <div class="card-icon" aria-hidden="true">◉</div>
-            <h3>Immersive WebGL &amp; 3D</h3>
-            <p>Real-time Three.js scenes, custom GLSL shaders, particle systems and dynamic lighting that turn browsers into theatres.</p>
-            <ul><li>Shader Art</li><li>Product 3D</li><li>Interactive Worlds</li></ul>
+        <div class="plans-grid">
+          <article class="plan-card glass-card" data-plan-gb="20" data-reveal data-hover>
+            <h3>استارت</h3>
+            <p class="plan-gb"><strong>۲۰</strong> گیگ</p>
+            <p class="plan-price"><span data-price-gb="20">۸۰٬۰۰۰</span> <small>تومان</small></p>
+            <ul class="plan-feats">
+              <li><span data-plan-days>۳۰</span> روز اعتبار</li><li>همه لوکیشن‌ها</li><li>تحویل خودکار</li><li>پیگیری آنلاین سفارش</li>
+            </ul>
+            <a href="#checkout" class="btn btn-ghost plan-btn nav-link" data-buy-gb="20" data-hover><span class="btn-label">خرید این پلن</span></a>
           </article>
 
-          <article class="glass-card tilt" data-reveal data-hover>
-            <span class="card-num">/ 02</span>
-            <div class="card-icon" aria-hidden="true">◆</div>
-            <h3>Motion &amp; Interaction</h3>
-            <p>GSAP-choreographed scroll narratives, magnetic interfaces, morphing layouts and micro-interactions with physics in their veins.</p>
-            <ul><li>Scroll Stories</li><li>Page Transitions</li><li>Micro-motion</li></ul>
+          <article class="plan-card glass-card is-popular" data-plan-gb="50" data-reveal data-hover>
+            <span class="plan-badge">پیشنهاد ورتکس‌نت ✦</span>
+            <h3>محبوب</h3>
+            <p class="plan-gb"><strong>۵۰</strong> گیگ</p>
+            <p class="plan-price"><span data-price-gb="50">۲۰۰٬۰۰۰</span> <small>تومان</small></p>
+            <ul class="plan-feats">
+              <li><span data-plan-days>۳۰</span> روز اعتبار</li><li>همه لوکیشن‌ها</li><li>تحویل خودکار</li><li>پیگیری آنلاین سفارش</li>
+            </ul>
+            <a href="#checkout" class="btn btn-primary plan-btn magnetic nav-link" data-buy-gb="50" data-hover><span class="btn-label">خرید این پلن</span><span class="btn-arrow" aria-hidden="true">↙</span></a>
           </article>
 
-          <article class="glass-card tilt" data-reveal data-hover>
-            <span class="card-num">/ 03</span>
-            <div class="card-icon" aria-hidden="true">▲</div>
-            <h3>Luxury Brand Systems</h3>
-            <p>Editorial typography, art-directed imagery and design languages that make premium brands feel inevitable, not decorated.</p>
-            <ul><li>Identity</li><li>Art Direction</li><li>Design Systems</li></ul>
+          <article class="plan-card glass-card" data-plan-gb="100" data-reveal data-hover>
+            <h3>حرفه‌ای</h3>
+            <p class="plan-gb"><strong>۱۰۰</strong> گیگ</p>
+            <p class="plan-price"><span data-price-gb="100">۴۰۰٬۰۰۰</span> <small>تومان</small></p>
+            <ul class="plan-feats">
+              <li><span data-plan-days>۳۰</span> روز اعتبار</li><li>همه لوکیشن‌ها</li><li>تحویل خودکار</li><li>پیگیری آنلاین سفارش</li>
+            </ul>
+            <a href="#checkout" class="btn btn-ghost plan-btn nav-link" data-buy-gb="100" data-hover><span class="btn-label">خرید این پلن</span></a>
           </article>
 
-          <article class="glass-card tilt" data-reveal data-hover>
-            <span class="card-num">/ 04</span>
-            <div class="card-icon" aria-hidden="true">✦</div>
-            <h3>Performance Engineering</h3>
-            <p>Awwwards looks at Lighthouse speeds: adaptive quality, GPU budgets, code-splitting and edge-ready static delivery.</p>
-            <ul><li>90+ Lighthouse</li><li>Adaptive WebGL</li><li>Linux / Docker</li></ul>
+          <article class="plan-card glass-card" data-plan-gb="200" data-reveal data-hover>
+            <h3>پر‌مصرف</h3>
+            <p class="plan-gb"><strong>۲۰۰</strong> گیگ</p>
+            <p class="plan-price"><span data-price-gb="200">۸۰۰٬۰۰۰</span> <small>تومان</small></p>
+            <ul class="plan-feats">
+              <li><span data-plan-days>۳۰</span> روز اعتبار</li><li>همه لوکیشن‌ها</li><li>تحویل خودکار</li><li>پیگیری آنلاین سفارش</li>
+            </ul>
+            <a href="#checkout" class="btn btn-ghost plan-btn nav-link" data-buy-gb="200" data-hover><span class="btn-label">خرید این پلن</span></a>
           </article>
+        </div>
+
+        <!-- ماشین‌حساب حجم دلخواه -->
+        <div class="calc glass-card" data-reveal>
+          <div class="calc-head">
+            <h3>حجم دلخواهت رو بساز</h3>
+            <p>از <span data-min-gb>۱۰</span> گیگ به بالا، هر چقدر خواستی انتخاب کن؛ قیمت لحظه‌ای حساب میشه. مبنا: هر گیگ <span data-price-per-gb>۴٬۰۰۰</span> تومان.</p>
+          </div>
+          <div class="calc-body">
+            <div class="calc-controls">
+              <label for="gb-range">حجم مورد نیاز: <strong id="calc-gb-label">۵۰ گیگ</strong></label>
+              <input type="range" id="gb-range" min="10" max="500" step="5" value="50" aria-describedby="calc-price" />
+              <div class="calc-scale" aria-hidden="true"><span><span data-min-gb>۱۰</span> گیگ</span><span>۵۰۰ گیگ</span></div>
+              <label class="calc-num-label" for="gb-input">یا دقیق وارد کن:
+                <input type="number" id="gb-input" min="10" max="5000" step="1" value="50" inputmode="numeric" /> گیگ
+              </label>
+            </div>
+            <div class="calc-result">
+              <span>قیمت نهایی (<span data-plan-days>۳۰</span> روزه)</span>
+              <strong id="calc-price">۲۰۰٬۰۰۰ تومان</strong>
+              <small id="calc-perday">یعنی روزی حدود ۶٬۶۶۷ تومان</small>
+              <a href="#checkout" class="btn btn-primary magnetic nav-link" id="calc-buy" data-hover><span class="btn-label">سفارش این حجم</span><span class="btn-arrow" aria-hidden="true">↙</span></a>
+            </div>
+          </div>
         </div>
       </div>
       <div class="orb orb-b" data-parallax="14" aria-hidden="true"></div>
     </section>
 
-    <!-- ══════════ WORKS (horizontal scroll) ══════════ -->
-    <section id="works" class="works" aria-label="Selected works">
-      <div class="works-pin">
-        <div class="works-head container">
-          <p class="section-label"><span>03</span> — Selected Works</p>
-          <p class="works-hint" aria-hidden="true">Keep scrolling ⟶</p>
-        </div>
-        <div class="works-track" id="works-track">
-          <article class="work-intro">
-            <h2>Objects of<br /><em>digital desire</em></h2>
-            <p>Four recent expeditions into light, matter and motion.</p>
-          </article>
-
-          <article class="work-card" data-hover>
-            <figure><img src="/images/work-nebula.jpg" alt="Iridescent liquid chrome sculpture floating in a dark void" loading="lazy" decoding="async" /></figure>
-            <header><span>2026 — WebGL Experience</span><h3>NEBULA Chrome</h3></header>
-            <p>A liquid-metal brand universe rendered in real time. +212% dwell time.</p>
-          </article>
-
-          <article class="work-card" data-hover>
-            <figure><img src="/images/work-monolith.jpg" alt="Golden monolith tower above dark reflective water at night" loading="lazy" decoding="async" /></figure>
-            <header><span>2025 — Luxury Real Estate</span><h3>The Golden Monolith</h3></header>
-            <p>A cinematic scroll-tour through a tower that sold out before launch.</p>
-          </article>
-
-          <article class="work-card" data-hover>
-            <figure><img src="/images/work-orbit.jpg" alt="Glass rings and a metal sphere orbiting with refracted light" loading="lazy" decoding="async" /></figure>
-            <header><span>2025 — Fintech Rebrand</span><h3>ORBITAL Finance</h3></header>
-            <p>Gravity-based UI physics for a next-generation private bank.</p>
-          </article>
-
-          <article class="work-card" data-hover>
-            <figure><img src="/images/work-wave.jpg" alt="Flowing wave of glowing golden particles on black" loading="lazy" decoding="async" /></figure>
-            <header><span>2024 — Award Winner</span><h3>Silk &amp; Particles</h3></header>
-            <p>60,000 GPU particles woven into silk. Site of the Day honours.</p>
-          </article>
-
-          <article class="work-end">
-            <a href="#contact" class="btn btn-primary magnetic nav-link" data-hover><span class="btn-label">Yours could be next</span><span class="btn-arrow" aria-hidden="true">↗</span></a>
-          </article>
-        </div>
-      </div>
-    </section>
-
-    <!-- ══════════ NUMBERS ══════════ -->
-    <section class="section numbers" aria-label="Studio numbers">
-      <div class="container numbers-grid">
-        <div class="number-cell" data-reveal><strong><span data-count="9">0</span></strong><span>Years of craft</span></div>
-        <div class="number-cell" data-reveal><strong><span data-count="120">0</span>+</strong><span>Experiences launched</span></div>
-        <div class="number-cell" data-reveal><strong><span data-count="18">0</span></strong><span>International awards</span></div>
-        <div class="number-cell" data-reveal><strong><span data-count="99">0</span>%</strong><span>Clients who return</span></div>
-      </div>
-    </section>
-
-    <!-- ══════════ PROCESS ══════════ -->
-    <section id="process" class="section process" aria-label="Process">
+    <!-- ══════════ خرید / پرداخت ══════════ -->
+    <section id="checkout" class="section checkout" aria-label="خرید و پرداخت">
       <div class="container">
-        <p class="section-label" data-reveal><span>04</span> — Process</p>
-        <h2 class="section-title" data-reveal>From first spark<br />to <em>final orbit</em>.</h2>
+        <p class="section-label" data-reveal><span>۰۳</span> — خرید و پرداخت</p>
+        <h2 class="section-title" data-reveal>در یک دقیقه<br /><em>سفارشت رو ثبت کن</em></h2>
 
-        <ol class="process-list">
-          <li class="process-step" data-reveal data-hover>
-            <span class="step-num">01</span>
-            <div><h3>Discover</h3><p>We excavate your brand's gravitational core — audience, ambition, and the emotion every visit must leave behind.</p></div>
-            <span class="step-time">Week 1–2</span>
-          </li>
-          <li class="process-step" data-reveal data-hover>
-            <span class="step-num">02</span>
-            <div><h3>Design in Motion</h3><p>No static mockups. We prototype living scenes — shaders, physics and typography moving together from day one.</p></div>
-            <span class="step-time">Week 3–5</span>
-          </li>
-          <li class="process-step" data-reveal data-hover>
-            <span class="step-num">03</span>
-            <div><h3>Engineer &amp; Optimise</h3><p>Production WebGL with adaptive quality, accessibility baked in, and budgets guarded like launch telemetry.</p></div>
-            <span class="step-time">Week 6–8</span>
-          </li>
-          <li class="process-step" data-reveal data-hover>
-            <span class="step-num">04</span>
-            <div><h3>Launch to Orbit</h3><p>Deployed on your Linux infrastructure — Docker or Nginx, SSL, caching and monitoring included. Then we iterate.</p></div>
-            <span class="step-time">Week 9 →</span>
-          </li>
-        </ol>
+        <div class="checkout-card glass-card" data-reveal>
+          <!-- خلاصه سفارش -->
+          <div class="ck-summary">
+            <div class="ck-gb">
+              <label for="ck-gb-input">حجم انتخابی (گیگ)</label>
+              <div class="ck-gb-row">
+                <button type="button" class="ck-step" id="ck-minus" aria-label="کم کردن حجم">−</button>
+                <input type="number" id="ck-gb-input" min="10" max="5000" step="1" value="50" inputmode="numeric" />
+                <button type="button" class="ck-step" id="ck-plus" aria-label="زیاد کردن حجم">+</button>
+              </div>
+              <div class="ck-chips">
+                <button type="button" data-ck-gb="20">۲۰ گیگ</button>
+                <button type="button" data-ck-gb="50">۵۰ گیگ</button>
+                <button type="button" data-ck-gb="100">۱۰۰ گیگ</button>
+                <button type="button" data-ck-gb="200">۲۰۰ گیگ</button>
+              </div>
+            </div>
+            <div class="ck-price">
+              <span>مبلغ قابل پرداخت (<span data-plan-days>۳۰</span> روزه)</span>
+              <strong id="ck-price">۲۰۰٬۰۰۰ تومان</strong>
+              <small id="ck-perday">روزی حدود ۶٬۶۶۷ تومان</small>
+            </div>
+            <div class="ck-discount">
+              <label for="f-discount">🎟 کد تخفیف</label>
+              <div class="ck-discount-row">
+                <input id="f-discount" type="text" dir="ltr" placeholder="CODE" autocomplete="off" />
+                <button type="button" class="btn btn-ghost btn-sm" id="discount-apply" data-hover><span class="btn-label">اعمال کد</span></button>
+                <button type="button" class="btn btn-ghost btn-sm" id="discount-remove" data-hover hidden><span class="btn-label">حذف کد</span></button>
+              </div>
+              <p class="ck-discount-msg" id="discount-msg" role="status" aria-live="polite"></p>
+              <p class="ck-discount-line" id="discount-line" hidden></p>
+            </div>
+          </div>
+
+          <!-- اطلاعات پرداخت -->
+          <div class="ck-pay">
+            <p class="ck-step-title"><span>قدم ۱</span> مبلغ رو به این کارت، کارت‌به‌کارت کن:</p>
+            <div class="bank-card" role="group" aria-label="مشخصات کارت مقصد">
+              <div class="bank-top">
+                <span class="bank-label">💳 شماره کارت مقصد</span>
+                <span class="bank-brand" aria-hidden="true">VORTEXNET</span>
+              </div>
+              <p class="bank-num" id="card-number" dir="ltr">6219 8614 9561 6921</p>
+              <div class="bank-bottom">
+                <span class="bank-owner">به نام: <strong id="card-name">ایمان دهقانی</strong></span>
+                <button type="button" class="btn btn-ghost btn-sm" id="copy-card" data-hover><span class="btn-label">📋 کپی شماره کارت</span></button>
+              </div>
+            </div>
+            <p class="ck-step-title" style="margin-top:22px"><span>قدم ۲</span> بعد از واریز فقط ۴ رقم آخر کارتت رو بگو و تموم!</p>
+          </div>
+
+          <!-- نیاز به ورود -->
+          <div id="ck-need-login" class="need-login">
+            <p>برای ثبت خرید و تحویل اشتراک، اول یه حساب بساز (۱۰ ثانیه!)</p>
+            <p class="need-login-sub">اشتراک، سفارش‌ها و حجم باقی‌مونده‌ات همیشه توی حسابت نگه داشته میشه.</p>
+            <div class="need-login-btns">
+              <button type="button" class="btn btn-primary" data-auth-open="register" data-hover><span class="btn-label">✨ ثبت‌نام سریع</span></button>
+              <button type="button" class="btn btn-ghost" data-auth-open="login" data-hover><span class="btn-label">ورود</span></button>
+            </div>
+          </div>
+
+          <!-- فرم ثبت سفارش (بعد از ورود) -->
+          <form id="order-form" novalidate hidden>
+            <div class="field last4-field">
+              <label for="f-last4">۴ رقم آخر کارتی که باهاش پرداخت کردی <b>*</b></label>
+              <input id="f-last4" name="last4" type="text" inputmode="numeric" autocomplete="off" dir="ltr" maxlength="4" placeholder="••••" required />
+              <small>فقط برای تطبیق واریزت — هیچ اطلاعات دیگه‌ای لازم نیست 🙂</small>
+            </div>
+            <button type="submit" class="btn btn-primary btn-big magnetic" id="order-submit" data-hover>
+              <span class="btn-label">✅ پرداخت کردم — ثبت سفارش</span>
+            </button>
+            <p class="form-status" id="order-status" role="status" aria-live="polite"></p>
+          </form>
+
+          <!-- نتیجه موفق -->
+          <div id="order-success" hidden>
+            <p class="success-title">🎉 سفارشت با موفقیت ثبت شد!</p>
+            <p>کد پیگیری تو:</p>
+            <div class="track-code-row">
+              <span class="track-code" id="success-code" dir="ltr">VX-XXXXXX</span>
+              <button type="button" class="btn btn-ghost btn-sm" id="copy-code" data-hover>کپی کد</button>
+            </div>
+            <p class="success-note">
+              پرداختت بررسی میشه و به‌محض تأیید، کانفیگت <b>خودکار ساخته میشه</b> و توی بخش
+              <b>«سرویس من»</b> حسابت قرار می‌گیره. وضعیت سفارش رو هم از بخش <b>«سفارشات»</b> می‌تونی زنده ببینی.
+            </p>
+            <button type="button" class="btn btn-primary magnetic" id="success-to-orders" data-hover><span class="btn-label">مشاهده در سفارشات</span><span class="btn-arrow" aria-hidden="true">↙</span></button>
+            <button type="button" class="btn btn-ghost" id="order-again" data-hover style="margin-inline-start:10px"><span class="btn-label">ثبت سفارش جدید</span></button>
+          </div>
+        </div>
       </div>
       <div class="orb orb-c" data-parallax="-12" aria-hidden="true"></div>
     </section>
 
-    <!-- ══════════ QUOTE ══════════ -->
-    <section class="section quote-section" aria-label="Client testimonial">
+    <!-- ══════════ حساب من: سرویس من + سفارشات ══════════ -->
+    <section id="account" class="section account" aria-label="حساب کاربری" hidden>
       <div class="container">
-        <blockquote data-reveal>
-          <p>“AETHER didn't redesign our website. They gave our brand a <em>gravitational field</em> —
-          customers now orbit us.”</p>
-          <footer>— CMO, Orbital Private Bank</footer>
-        </blockquote>
+        <p class="section-label"><span>★</span> — پنل کاربری</p>
+        <h2 class="section-title">سلام <em><bdi id="acc-username">کاربر</bdi></em> 👋</h2>
+        <p class="section-sub">اشتراک و سفارش‌هات اینجاست — حجم و روزهای باقی‌مونده <b>زنده و لحظه‌ای</b> از سرور گرفته میشه.</p>
+
+        <div class="acc-bar">
+          <div class="acc-tabs" role="tablist" aria-label="بخش‌های حساب">
+            <button type="button" class="acc-tab on" data-acc-tab="service" data-hover><svg class="ic-sm" aria-hidden="true"><use href="#ic-service"/></svg> سرویس من</button>
+            <button type="button" class="acc-tab" data-acc-tab="orders" data-hover><svg class="ic-sm" aria-hidden="true"><use href="#ic-orders"/></svg> سفارشات <span class="acc-badge" id="orders-badge" hidden>۰</span></button>
+          </div>
+          <div class="acc-actions">
+            <button type="button" class="btn btn-ghost btn-sm" id="acc-chat-open" data-hover><svg class="ic-sm" aria-hidden="true"><use href="#ic-chat"/></svg><span class="btn-label">چت با پشتیبانی</span></button>
+            <button type="button" class="btn btn-ghost btn-sm" id="acc-logout" data-hover><span class="btn-label">خروج از حساب</span></button>
+          </div>
+        </div>
+
+        <!-- تکمیل اطلاعات حساب (فقط وقتی نام/ایمیل کامل نیست) -->
+        <form id="profile-form" class="profile-card" novalidate hidden>
+          <p class="profile-note">⚠️ <b>اطلاعات حسابت رو کامل کن</b> تا بازیابی حسابت فعال بشه — اگه یه روز نام کاربری یا رمزت رو یادت رفت، با ایمیل و نامت برمی‌گردی تو حسابت.</p>
+          <div class="field">
+            <label for="pf-name">نام و نام خانوادگی</label>
+            <input id="pf-name" type="text" autocomplete="name" placeholder="مثلاً علی رضایی" />
+          </div>
+          <div class="field">
+            <label for="pf-email">ایمیل (برای بازیابی اکانت)</label>
+            <input id="pf-email" type="email" autocomplete="email" dir="ltr" placeholder="you@example.com" />
+          </div>
+          <button type="submit" class="btn btn-primary" id="profile-submit" data-hover><span class="btn-label">ذخیره اطلاعات</span></button>
+          <p class="form-status" id="profile-status" role="status" aria-live="polite"></p>
+        </form>
+
+        <!-- سرویس من -->
+        <div id="acc-service" class="acc-pane">
+          <div class="acc-pane-head">
+            <span class="live-note" id="svc-live-note">🟢 اطلاعات زنده از سرور</span>
+            <button type="button" class="btn btn-ghost btn-sm" id="svc-refresh" data-hover><span class="btn-label">⟳ به‌روزرسانی</span></button>
+          </div>
+          <p class="form-status" id="svc-action-msg" role="status" aria-live="polite"></p>
+          <div id="service-list"><p class="acc-empty">در حال دریافت…</p></div>
+        </div>
+
+        <!-- سفارشات -->
+        <div id="acc-orders" class="acc-pane" hidden>
+          <div id="my-orders-list"><p class="acc-empty">در حال دریافت…</p></div>
+        </div>
       </div>
     </section>
 
-    <!-- ══════════ CONTACT / CTA ══════════ -->
-    <section id="contact" class="section contact" aria-label="Contact">
-      <div class="container contact-grid">
-        <div>
-          <p class="section-label" data-reveal><span>05</span> — Contact</p>
-          <h2 class="section-title" data-reveal>Let's bend<br /><em>some light</em><br />together.</h2>
-          <ul class="contact-info" data-reveal>
-            <li><span>Email</span><a href="mailto:hello@example.com" data-hover>hello@example.com</a></li>
-            <li><span>Studio</span><address>Baku — working worldwide</address></li>
-            <li><span>Hours</span><span>Mon–Fri · 09:00–19:00 (GMT+4)</span></li>
-          </ul>
+    <!-- ══════════ اعداد ══════════ -->
+    <section class="section numbers" aria-label="ورتکس‌نت در یک نگاه">
+      <div class="container numbers-grid">
+        <div class="number-cell" data-reveal><strong><span data-count="4000" data-count-key="pricePerGB">۰</span></strong><span>تومان — قیمت هر گیگ</span></div>
+        <div class="number-cell" data-reveal><strong><span data-count="30" data-count-key="planDays">۰</span></strong><span>روز اعتبار هر پلن</span></div>
+        <div class="number-cell" data-reveal><strong><span data-count="10" data-count-key="minGB">۰</span></strong><span>گیگ — حداقل حجم خرید</span></div>
+        <div class="number-cell" data-reveal><strong><span data-count="5">۰</span></strong><span>دقیقه — میانگین تحویل</span></div>
+      </div>
+    </section>
+
+    <!-- ══════════ نحوه خرید ══════════ -->
+    <section id="news" class="section news" aria-label="اطلاعیه‌ها">
+      <div class="container">
+        <p class="section-label" data-reveal><span>۰۴</span> — اطلاعیه‌ها</p>
+        <h2 class="section-title" data-reveal>تازه‌ترین <em>خبرها</em><br />و اطلاعیه‌ها</h2>
+        <div id="news-list" class="news-list"><p class="news-empty">در حال بارگذاری…</p></div>
+      </div>
+    </section>
+
+    <section id="steps" class="section steps" aria-label="نحوه خرید">
+      <div class="container">
+        <p class="section-label" data-reveal><span>۰۵</span> — نحوه خرید</p>
+        <h2 class="section-title" data-reveal>فقط در <em>سه قدم</em><br />وصل میشی.</h2>
+
+        <ol class="process-list">
+          <li class="process-step" data-reveal data-hover>
+            <span class="step-num">۰۱</span>
+            <div><h3>ثبت‌نام کن و حجمت رو انتخاب کن</h3><p>با یه نام کاربری و رمز حساب بساز؛ بعد از تعرفه‌ها یکی رو بردار یا با ماشین‌حساب، هر حجمی از <span data-min-gb>۱۰</span> گیگ به بالا رو دقیق بساز.</p></div>
+            <span class="step-time">۳۰ ثانیه</span>
+          </li>
+          <li class="process-step" data-reveal data-hover>
+            <span class="step-num">۰۲</span>
+            <div><h3>کارت‌به‌کارت کن و سفارش رو ثبت کن</h3><p>مبلغ رو کارت‌به‌کارت کن و فقط <b>۴ رقم آخر کارتت</b> رو ثبت کن — همین! سفارشت میره توی صف تأیید و توی بخش «سفارشات» حسابت می‌بینیش.</p></div>
+            <span class="step-time">۲ دقیقه</span>
+          </li>
+          <li class="process-step" data-reveal data-hover>
+            <span class="step-num">۰۳</span>
+            <div><h3>کانفیگت رو تحویل بگیر 🚀</h3><p>بعد از تأیید پرداخت، اشتراکت خودکار ساخته میشه و توی بخش «سرویس من» حسابت با لینک و QR آماده‌ست؛ حجم مصرفی و روزهای باقی‌مونده رو هم زنده ببین.</p></div>
+            <span class="step-time">فوری</span>
+          </li>
+        </ol>
+      </div>
+    </section>
+
+    <!-- ══════════ پیگیری سفارش ══════════ -->
+    <section id="track" class="section track" aria-label="پیگیری سفارش">
+      <div class="container">
+        <p class="section-label" data-reveal><span>۰۶</span> — پیگیری سفارش</p>
+        <h2 class="section-title" data-reveal>کانفیگت<br />آماده‌ست؟ <em>چک کن</em></h2>
+        <p class="section-sub" data-reveal>اگه حساب کاربری داری، وضعیت همهٔ سفارش‌ها و لینک اشتراکت توی بخش <b>«سفارشات»</b> و <b>«سرویس من»</b> هست. این فرم برای سفارش‌های قدیمی (قبل از حساب کاربری) است.</p>
+
+        <div class="glass-card track-card" data-reveal>
+          <form id="track-form" novalidate>
+            <div class="form-grid">
+              <div class="field">
+                <label for="t-code">کد پیگیری سفارش</label>
+                <input id="t-code" type="text" dir="ltr" placeholder="VX-XXXXXX" autocomplete="off" required />
+              </div>
+              <div class="field">
+                <label for="t-secret">۴ رقم آخر کارت پرداخت</label>
+                <input id="t-secret" type="text" inputmode="numeric" dir="ltr" placeholder="••••" autocomplete="off" required />
+                <small>برای سفارش‌های خیلی قدیمی: کد پیگیری رسید بانکی</small>
+              </div>
+            </div>
+            <button type="submit" class="btn btn-primary magnetic" id="track-submit" data-hover><span class="btn-label">استعلام سفارش</span></button>
+            <p class="form-status" id="track-status" role="status" aria-live="polite"></p>
+          </form>
+
+          <div id="track-result" hidden></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══════════ سوالات متداول ══════════ -->
+    <section id="faq" class="section faq" aria-label="سوالات متداول">
+      <div class="container">
+        <p class="section-label" data-reveal><span>۰۷</span> — سوالات متداول</p>
+        <h2 class="section-title" data-reveal>سؤالی داری؟<br />جوابش <em>اینجاست</em>.</h2>
+
+        <div class="faq-list">
+          <div class="faq-item" data-reveal>
+            <button type="button" class="faq-q" aria-expanded="false" data-hover>بعد از پرداخت، کانفیگم رو چطور تحویل می‌گیرم؟<span class="faq-icon" aria-hidden="true">+</span></button>
+            <div class="faq-a"><p>به‌محض تأیید پرداخت، اشتراکت خودکار ساخته میشه و توی حساب کاربری‌ت، بخش «سرویس من»، لینک اشتراک و QR کدت آماده‌ست. وضعیت سفارش (در انتظار تأیید/تأیید/رد) رو هم از بخش «سفارشات» می‌بینی.</p></div>
+          </div>
+          <div class="faq-item" data-reveal>
+            <button type="button" class="faq-q" aria-expanded="false" data-hover>تأیید پرداخت چقدر طول می‌کشه؟<span class="faq-icon" aria-hidden="true">+</span></button>
+            <div class="faq-a"><p>معمولاً چند دقیقه. وضعیت سفارشت رو هر لحظه می‌تونی از بخش «پیگیری سفارش» ببینی: در انتظار بررسی، تأیید شده یا رد شده (با علت).</p></div>
+          </div>
+          <div class="faq-item" data-reveal>
+            <button type="button" class="faq-q" aria-expanded="false" data-hover>روی چه دستگاه‌ها و اینترنت‌هایی کار می‌کنه؟<span class="faq-icon" aria-hidden="true">+</span></button>
+            <div class="faq-a"><p>همه دستگاه‌ها: گوشی اندروید و آیفون، کامپیوتر و لپ‌تاپ (ویندوز و مک). از نظر اینترنت هم با همراه اول، ایرانسل، رایتل، مخابرات و وای‌فای خونه تست شده و پایداره. فقط کافیه لینک اشتراک رو توی اپلیکیشن‌ت وارد کنی.</p></div>
+          </div>
+          <div class="faq-item" data-reveal>
+            <button type="button" class="faq-q" aria-expanded="false" data-hover>سرعت و پینگش چطوره؟ برای گیم و استریم خوبه؟<span class="faq-icon" aria-hidden="true">+</span></button>
+            <div class="faq-a"><p>سرورها در آلمان با مسیر بهینه‌شده برای ایران قرار دارن؛ برای استریم، تماس تصویری، گیم آنلاین و دانلود سنگین کاملاً مناسبه و افت سرعت احساس نمی‌کنی.</p></div>
+          </div>
+          <div class="faq-item" data-reveal>
+            <button type="button" class="faq-q" aria-expanded="false" data-hover>اگه حجمم تموم بشه یا بخوام تمدید کنم چی؟<span class="faq-icon" aria-hidden="true">+</span></button>
+            <div class="faq-a"><p>یه خرید جدید ثبت کن و توی کادر «توضیح» بنویس «تمدید» و نام کاربری قبلی‌ت (که در پیگیری سفارش قبلی می‌بینی) رو ذکر کن تا روی همون اشتراکت اعمال بشه؛ یا یه اشتراک تازه تحویل بگیری.</p></div>
+          </div>
+          <div class="faq-item" data-reveal>
+            <button type="button" class="faq-q" aria-expanded="false" data-hover>اگه سؤال یا مشکلی داشتم کجا پیام بدم؟<span class="faq-icon" aria-hidden="true">+</span></button>
+            <div class="faq-a"><p>دکمهٔ «💬 پشتیبانی» گوشهٔ سایت رو بزن و مستقیم با پشتیبانی چت کن؛ جوابت همین‌جا داخل سایت میاد. سفارش‌ها و اشتراکت هم همیشه با ورود به حسابت در دسترسه و چیزی گم نمیشه.</p></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══════════ نظرات مشتریان ══════════ -->
+    <section id="reviews" class="section reviews" aria-label="نظرات مشتریان">
+      <div class="container">
+        <p class="section-label" data-reveal><span>۰۸</span> — نظرات مشتریان</p>
+        <h2 class="section-title" data-reveal>حرف‌های <em>مشتری‌ها</em></h2>
+        <p class="rev-note" data-reveal>نظرها کاملاً <b>ناشناس</b> منتشر می‌شن؛ هیچ اطلاعاتی از نویسنده نمایش داده نمی‌شه. هر نظر بعد از بررسی مدیریت عمومی می‌شه.</p>
+
+        <div class="glass-card rev-box" data-reveal>
+          <div id="rev-need-login" hidden>
+            <p>برای ثبت نظر، اول وارد حسابت شو.</p>
+            <button type="button" class="btn btn-primary btn-sm" data-auth-open="login" data-hover><span class="btn-label">ورود / ثبت‌نام</span></button>
+          </div>
+          <form id="rev-form" hidden>
+            <label for="rev-text">تجربه‌ات از ورتکس‌نت چطور بوده؟</label>
+            <textarea id="rev-text" rows="3" maxlength="600" placeholder="مثلاً: سرعتش عالیه، سه ماهه بدون قطعی دارم استفاده می‌کنم…"></textarea>
+            <div class="rev-form-foot">
+              <small>به‌صورت ناشناس و بعد از تأیید مدیریت منتشر می‌شه.</small>
+              <button type="submit" class="btn btn-primary btn-sm" id="rev-submit" data-hover><span class="btn-label">ثبت نظر</span></button>
+            </div>
+            <p id="rev-msg" role="status"></p>
+          </form>
+          <div id="rev-mine" hidden></div>
         </div>
 
-        <form id="contact-form" class="glass-form" data-reveal novalidate>
-          <div class="field">
-            <label for="f-name">Your name</label>
-            <input id="f-name" name="name" type="text" autocomplete="name" required placeholder="Ada Lovelace" />
-          </div>
-          <div class="field">
-            <label for="f-email">Email</label>
-            <input id="f-email" name="email" type="email" autocomplete="email" required placeholder="ada@company.com" />
-          </div>
-          <div class="field">
-            <label for="f-msg">Tell us about the universe you want to build</label>
-            <textarea id="f-msg" name="message" rows="4" required placeholder="We need a website that feels like…"></textarea>
-          </div>
-          <button type="submit" class="btn btn-primary magnetic" data-hover>
-            <span class="btn-label">Transmit Message</span><span class="btn-arrow" aria-hidden="true">↗</span>
-          </button>
-          <p id="form-status" role="status" aria-live="polite"></p>
-        </form>
+        <div id="reviews-list" class="rev-list"><p class="news-empty">در حال بارگذاری…</p></div>
       </div>
     </section>
   </main>
 
-  <!-- ══════════ FOOTER ══════════ -->
+  <!-- ══════════ فوتر ══════════ -->
   <footer class="site-footer">
     <div class="container footer-grid">
       <div>
-        <p class="logo">AETHER<span>®</span></p>
-        <p class="footer-tag">Crafted beyond gravity.<br />Deployed on Linux, anywhere.</p>
+        <p class="logo">VORTEXNET<span>®</span></p>
+        <p class="footer-tag">ورتکس‌نت — اینترنت آزاد با سرعت نور.<br />هر گیگ فقط <span data-price-per-gb>۴٬۰۰۰</span> تومان. فروش فقط از طریق همین سایت انجام می‌شود.</p>
       </div>
-      <nav aria-label="Footer">
-        <a class="nav-link" data-hover href="#manifesto">Manifesto</a>
-        <a class="nav-link" data-hover href="#services">Services</a>
-        <a class="nav-link" data-hover href="#works">Works</a>
-        <a class="nav-link" data-hover href="#contact">Contact</a>
+      <nav aria-label="فوتر">
+        <a class="nav-link" data-hover href="#features">ویژگی‌ها</a>
+        <a class="nav-link" data-hover href="#plans">تعرفه‌ها</a>
+        <a class="nav-link" data-hover href="#checkout">خرید کانفیگ</a>
+        <a class="nav-link" data-hover href="#track">پیگیری سفارش</a>
+        <a class="nav-link" data-hover href="#faq">سوالات متداول</a>
+        <a class="nav-link" data-hover href="#news">اطلاعیه‌ها</a>
+        <a class="nav-link" data-hover href="#reviews">نظرات مشتریان</a>
       </nav>
       <div class="footer-meta">
-        <p>© <span id="year">2026</span> AETHER Studio. All rights reserved.</p>
-        <a href="#hero" class="nav-link back-top" data-hover>Back to orbit ↑</a>
+        <p>© <span id="year">۲۰۲۶</span> ورتکس‌نت — همه حقوق محفوظ است.</p>
+        <a href="#hero" class="nav-link back-top" data-hover>بازگشت به بالا ↑</a>
       </div>
     </div>
   </footer>
 
+  <!-- ══════════ ورود / ثبت‌نام ══════════ -->
+  <div id="auth-modal" class="modal" hidden role="dialog" aria-modal="true" aria-label="ورود و ثبت‌نام">
+    <div class="modal-backdrop" data-auth-close></div>
+    <div class="modal-card">
+      <button type="button" class="modal-x" data-auth-close aria-label="بستن">✕</button>
+      <p class="modal-logo" dir="ltr">VORTEXNET<span>®</span></p>
+      <div class="auth-tabs" role="tablist" aria-label="ورود یا ثبت‌نام">
+        <button type="button" data-auth-tab="register" class="on">ثبت‌نام</button>
+        <button type="button" data-auth-tab="login">ورود</button>
+      </div>
+
+      <form id="register-form" novalidate>
+        <div class="field">
+          <label for="r-name">نام و نام خانوادگی <b>*</b></label>
+          <input id="r-name" type="text" autocomplete="name" placeholder="مثلاً علی رضایی" required />
+        </div>
+        <div class="field">
+          <label for="r-username">نام کاربری <b>*</b></label>
+          <input id="r-username" type="text" autocomplete="username" dir="ltr" placeholder="e.g. iman_2026" required />
+          <small>۳ تا ۲۴ حرف/عدد (فارسی یا انگلیسی) — یکتاست و تکراری قبول نمی‌کنه</small>
+        </div>
+        <div class="field">
+          <label for="r-password">رمز عبور <b>*</b></label>
+          <input id="r-password" type="password" autocomplete="new-password" dir="ltr" placeholder="حداقل ۶ کاراکتر" required />
+        </div>
+        <div class="field">
+          <label for="r-email">ایمیل (برای بازیابی اکانت) <b>*</b></label>
+          <input id="r-email" type="email" autocomplete="email" dir="ltr" placeholder="you@example.com" required />
+          <small>اگه نام کاربری یا رمزت رو یادت رفت، با همین ایمیل برمی‌گردی تو حسابت — یه ایمیل واقعی بزن</small>
+        </div>
+        <button type="submit" class="btn btn-primary btn-big" id="register-submit" data-hover><span class="btn-label">✨ ساخت حساب</span></button>
+      </form>
+
+      <form id="login-form" novalidate hidden>
+        <div class="field">
+          <label for="l-username">نام کاربری <b>*</b></label>
+          <input id="l-username" type="text" autocomplete="username" dir="ltr" required />
+        </div>
+        <div class="field">
+          <label for="l-password">رمز عبور <b>*</b></label>
+          <input id="l-password" type="password" autocomplete="current-password" dir="ltr" required />
+        </div>
+        <button type="submit" class="btn btn-primary btn-big" id="login-submit" data-hover><span class="btn-label">ورود به حساب</span></button>
+        <p class="auth-alt"><button type="button" class="linklike" id="forgot-open" data-hover>نام کاربری یا رمز عبورم رو فراموش کردم</button></p>
+      </form>
+
+      <form id="recover-form" novalidate hidden>
+        <p class="recover-note">ایمیل و نام و نام خانوادگی رو که موقع ثبت‌نام دادی وارد کن — نام کاربریت رو بهت نشون می‌دیم و همون‌جا یه رمز جدید می‌سازی و وارد می‌شی. 🔐</p>
+        <div class="field">
+          <label for="rc-email">ایمیل ثبت‌نام <b>*</b></label>
+          <input id="rc-email" type="email" autocomplete="email" dir="ltr" placeholder="you@example.com" required />
+        </div>
+        <div class="field">
+          <label for="rc-name">نام و نام خانوادگی (موقع ثبت‌نام) <b>*</b></label>
+          <input id="rc-name" type="text" autocomplete="name" placeholder="مثلاً علی رضایی" required />
+        </div>
+        <div id="recover-step2" hidden>
+          <p class="recover-found">✅ حسابت پیدا شد! نام کاربری تو: <b dir="ltr" id="rc-username"></b><br />حالا یه رمز جدید بساز:</p>
+          <div class="field">
+            <label for="rc-password">رمز جدید <b>*</b></label>
+            <input id="rc-password" type="password" autocomplete="new-password" dir="ltr" placeholder="حداقل ۶ کاراکتر" />
+          </div>
+          <div class="field">
+            <label for="rc-password2">تکرار رمز جدید <b>*</b></label>
+            <input id="rc-password2" type="password" autocomplete="new-password" dir="ltr" />
+          </div>
+        </div>
+        <button type="submit" class="btn btn-primary btn-big" id="recover-submit" data-hover><span class="btn-label" id="recover-submit-label">پیدا کردن حسابم</span></button>
+        <p class="auth-alt"><button type="button" class="linklike" id="recover-back" data-hover>برگشت به ورود</button></p>
+      </form>
+      <p class="form-status" id="auth-status" role="status" aria-live="polite"></p>
+    </div>
+  </div>
+
+  <!-- ══════════ چت پشتیبانی ══════════ -->
+  <!-- ══════════ ناوبری پایین صفحه ══════════ -->
+  <nav id="bottom-nav" aria-label="ناوبری پایین">
+    <button type="button" class="bnav-item on" data-bnav="home" data-hover>
+      <svg class="bnav-ico" aria-hidden="true"><use href="#ic-home"/></svg><span>خانه</span>
+    </button>
+    <button type="button" class="bnav-item" data-bnav="orders" data-hover>
+      <svg class="bnav-ico" aria-hidden="true"><use href="#ic-orders"/></svg><span>سفارش‌ها</span>
+      <i class="bnav-badge" id="bnav-orders-badge" hidden>۰</i>
+    </button>
+    <button type="button" class="bnav-item" data-bnav="service" data-hover>
+      <svg class="bnav-ico" aria-hidden="true"><use href="#ic-service"/></svg><span>سرویس من</span>
+    </button>
+    <button type="button" class="bnav-item" data-bnav="chat" data-hover>
+      <svg class="bnav-ico" aria-hidden="true"><use href="#ic-chat"/></svg><span>پشتیبانی</span>
+      <i class="bnav-badge" id="bnav-chat-badge" hidden>۰</i>
+    </button>
+  </nav>
+  <div id="chat-panel" hidden role="dialog" aria-label="گفت‌وگو با پشتیبانی">
+    <div class="chat-p-head">
+      <div>
+        <strong><svg class="ic-sm ic-inline" aria-hidden="true"><use href="#ic-chat"/></svg> پشتیبانی ورتکس‌نت</strong>
+        <small>معمولاً زود جواب میدیم 🌙</small>
+      </div>
+      <button type="button" id="chat-close" aria-label="بستن چت">✕</button>
+    </div>
+    <div id="chat-msgs" class="chat-p-msgs"></div>
+    <div id="chat-swipe-hint" aria-hidden="true"><svg aria-hidden="true"><use href="#ic-reply"/></svg></div>
+    <div id="chat-need-login" class="chat-p-login" hidden>
+      <p>برای چت با پشتیبانی وارد حساب شو 🙂</p>
+      <button type="button" class="btn btn-primary btn-sm" data-auth-open="login" data-hover><span class="btn-label">ورود / ثبت‌نام</span></button>
+    </div>
+    <div id="chat-reply-bar" class="chat-reply-bar" hidden>
+      <svg class="ic-sm" aria-hidden="true"><use href="#ic-reply"/></svg>
+      <span class="crb-mid"><b id="chat-reply-who"></b><span id="chat-reply-text"></span></span>
+      <button type="button" id="chat-reply-x" aria-label="لغو پاسخ">✕</button>
+    </div>
+    <form id="chat-form" class="chat-p-form" hidden>
+      <input id="chat-input" type="text" placeholder="پیامت رو بنویس…" autocomplete="off" maxlength="2000" />
+      <button type="submit" class="btn btn-primary btn-sm" data-hover><span class="btn-label">ارسال</span></button>
+    </form>
+  </div>
+
+  <!-- فیل‌سیف: اگر فایل‌های اصلی دیر/ناقص رسیدن (اینترنت کند)، صفحه قفل روی پری‌لودر نمی‌ماند -->
+  <script>
+    window.__nkBooted = false;
+    setTimeout(function () {
+      if (!window.__nkBooted) {
+        var p = document.getElementById('preloader');
+        if (p) p.style.display = 'none';
+        document.body && document.body.classList.remove('is-loading');
+      }
+    }, 6000);
+  </script>
   <script type="module" src="/src/main.js"></script>
 </body>
 </html>

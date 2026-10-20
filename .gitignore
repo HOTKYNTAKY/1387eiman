@@ -6,3 +6,6 @@ dist/
 *.log
 .DS_Store
 .vite/
+*.zip
+# Shop backend runtime data (orders + secrets) — never commit
+server/data/

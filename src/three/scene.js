@@ -82,6 +82,7 @@ uniform vec3 uColorA;
 uniform vec3 uColorB;
 uniform vec3 uColorC;
 uniform float uTime;
+uniform float uDim;
 varying float vElev;
 varying vec3 vNormal;
 varying vec3 vView;
@@ -92,6 +93,7 @@ void main(){
   col = mix(col, uColorC, fresnel * 0.9);
   col += fresnel * 0.35 * uColorB;
   col += vec3(0.015, 0.015, 0.03);
+  col *= uDim;
   gl_FragColor = vec4(col, 1.0);
 }
 `;
@@ -157,6 +159,7 @@ export function createAetherScene(canvas, { reducedMotion = false } = {}) {
     uTime: { value: 0 },
     uDistort: { value: 0.42 },
     uFreq: { value: 0.85 },
+    uDim: { value: 1 },
     uColorA: { value: PALETTES[0].a.clone() },
     uColorB: { value: PALETTES[0].b.clone() },
     uColorC: { value: PALETTES[0].c.clone() },
@@ -166,6 +169,23 @@ export function createAetherScene(canvas, { reducedMotion = false } = {}) {
     new THREE.ShaderMaterial({ uniforms, vertexShader: VERT, fragmentShader: FRAG })
   );
   group.add(core);
+
+  /* Responsive framing — on portrait phones pull the camera back, shrink
+     and lift the group, and dim the core so it never swallows the UI. */
+  const fit = { zMul: 1, sMul: 1, yOff: 0 };
+  const computeFit = () => {
+    const a = window.innerWidth / window.innerHeight;
+    if (a < 1) {
+      fit.zMul = THREE.MathUtils.clamp(0.95 / a, 1.15, 1.6);
+      fit.sMul = THREE.MathUtils.clamp(a + 0.28, 0.68, 0.9);
+      fit.yOff = 0.55;
+      uniforms.uDim.value = 0.78;
+    } else {
+      fit.zMul = 1; fit.sMul = 1; fit.yOff = 0;
+      uniforms.uDim.value = 1;
+    }
+  };
+  computeFit();
 
   /* Wireframe aura shell */
   const aura = new THREE.Mesh(
@@ -223,6 +243,7 @@ export function createAetherScene(canvas, { reducedMotion = false } = {}) {
     camera.updateProjectionMatrix();
     renderer.setSize(window.innerWidth, window.innerHeight);
     setDpr();
+    computeFit();
   };
   window.addEventListener('resize', onResize);
 
@@ -269,15 +290,15 @@ export function createAetherScene(canvas, { reducedMotion = false } = {}) {
     starsFar.rotation.y = -t * 0.008;
 
     group.position.x += (state.posX - group.position.x) * 0.05;
-    group.position.y += (state.posY - group.position.y) * 0.05;
-    const s = THREE.MathUtils.lerp(group.scale.x, state.scale, 0.05);
+    group.position.y += (state.posY + fit.yOff - group.position.y) * 0.05;
+    const s = THREE.MathUtils.lerp(group.scale.x, state.scale * fit.sMul, 0.05);
     group.scale.setScalar(s);
     group.rotation.y = pointer.x * 0.28;
     group.rotation.x = pointer.y * 0.18;
 
     camera.position.x = pointer.x * 0.65;
     camera.position.y = -pointer.y * 0.45;
-    camera.position.z += (state.camZ - camera.position.z) * 0.05;
+    camera.position.z += (state.camZ * fit.zMul - camera.position.z) * 0.05;
     camera.lookAt(0, 0, 0);
 
     keyLight.position.x = pointer.x * 6;

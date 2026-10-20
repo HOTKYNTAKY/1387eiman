@@ -27,4 +27,8 @@ else
   $SUDO rm -rf "${WEB_ROOT:?}"/* && $SUDO cp -a dist/. "$WEB_ROOT/"
 fi
 $SUDO nginx -t && { $SUDO systemctl reload nginx 2>/dev/null || $SUDO nginx -s reload; }
+if $SUDO systemctl cat norkhiz-api >/dev/null 2>&1; then
+  echo "▸ Restarting shop API…"
+  $SUDO systemctl restart norkhiz-api
+fi
 echo "✓ AETHER updated."
