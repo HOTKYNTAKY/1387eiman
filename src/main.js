@@ -100,8 +100,20 @@ const jumpToEl = (el, immediate = false) => {
 };
 const getScrollY = () => window.scrollY || 0;
 const setScrollY = (y) => {
-  if (lenis) lenis.scrollTo(y, { immediate: true });
+  if (lenis) lenis.scrollTo(y, { immediate: true, force: true });
   else window.scrollTo(0, y);
+};
+/* اعمال موقعیت بازیابی‌شده + یک تلاش مجدد کوتاه اگر لیمیت/چیدمان هنوز جا نیفتاده باشد؛ با اسکرول کاربر لغو می‌شود */
+let pgRestoreToken = 0;
+['wheel', 'touchmove'].forEach((ev) => window.addEventListener(ev, () => { pgRestoreToken++; }, { passive: true }));
+const applyRestore = (y) => {
+  const tok = ++pgRestoreToken;
+  setScrollY(y);
+  const again = () => {
+    if (tok === pgRestoreToken && Math.abs(getScrollY() - y) > 2) setScrollY(y);
+  };
+  requestAnimationFrame(again);
+  setTimeout(again, 140);
 };
 const scrollToTarget = (target, immediate = false, restoreY = null) => {
   const el = typeof target === 'string' ? $(target) : target;
@@ -110,9 +122,9 @@ const scrollToTarget = (target, immediate = false, restoreY = null) => {
   const pg = el.closest ? el.closest('[data-page]') : null;
   if (pg && pg.dataset.page !== currentPage) {
     if (!showPage(pg.dataset.page)) return;
-    if (restoreY != null) setScrollY(restoreY); else jumpToEl(el, true);
+    if (restoreY != null) applyRestore(restoreY); else jumpToEl(el, true);
   } else if (restoreY != null) {
-    setScrollY(restoreY);
+    applyRestore(restoreY);
   } else {
     jumpToEl(el, immediate);
   }
@@ -149,6 +161,7 @@ function showPage(name, instant = false) {
   $$('[data-page]').forEach((el) => { el.hidden = el.dataset.page !== name; });
   const acc = $('#account');
   if (acc) acc.hidden = !(name === 'account' && pgLoggedIn);
+  if (lenis) lenis.resize();
   document.title = PAGE_TITLES[name];
   const main = $('#main');
   if (main && changed && !instant && !reducedMotion) {
@@ -175,6 +188,7 @@ function routeOnAuth() {
 }
 window.addEventListener('popstate', (e) => {
   pgNavLock = true;
+  pgRestoreGuard = Date.now() + 500;
   const y = e.state && typeof e.state.pgY === 'number' ? e.state.pgY : null;
   scrollToTarget(location.hash && location.hash.length > 1 ? location.hash : '#hero', true, y);
   pgNavLock = false;
@@ -183,11 +197,13 @@ $('#qa-service')?.addEventListener('click', () => goAccount('service'));
 $('#qa-support')?.addEventListener('click', () => toggleChat(true));
 if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
 let pgSaveTick = false;
+let pgRestoreGuard = 0;
 window.addEventListener('scroll', () => {
   if (pgSaveTick) return;
   pgSaveTick = true;
   requestAnimationFrame(() => {
     pgSaveTick = false;
+    if (Date.now() < pgRestoreGuard) return;
     const y = getScrollY();
     if (!history.state || history.state.pgY !== y) {
       try { history.replaceState({ pgY: y }, ''); } catch { /* ignore */ }
@@ -200,7 +216,9 @@ window.addEventListener('scroll', () => {
   const el = /^#[A-Za-z][\w-]*$/.test(h) ? $(h) : null;
   const pg = el && el.closest ? el.closest('[data-page]') : null;
   showPage(pg ? pg.dataset.page : 'home', true);
-  if (el && pg) jumpToEl(el, true);
+  const sy = history.state && typeof history.state.pgY === 'number' ? history.state.pgY : null;
+  if (sy != null) applyRestore(sy);
+  else if (el && pg) jumpToEl(el, true);
 })();
 
 /* ════════════════ پری‌لودر + ورود هیرو ════════════════ */
