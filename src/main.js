@@ -93,12 +93,89 @@ if (!reducedMotion) {
   gsap.ticker.add((time) => lenis.raf(time * 1000));
   gsap.ticker.lagSmoothing(0);
 }
-const scrollToTarget = (target, immediate = false) => {
-  const el = typeof target === 'string' ? $(target) : target;
+const jumpToEl = (el, immediate = false) => {
   if (!el) return;
   if (lenis) lenis.scrollTo(el, { immediate, offset: 0, duration: immediate ? 0 : 1.4 });
   else el.scrollIntoView({ behavior: immediate || reducedMotion ? 'auto' : 'smooth' });
 };
+const scrollToTarget = (target, immediate = false) => {
+  const el = typeof target === 'string' ? $(target) : target;
+  if (!el) return;
+  const pg = el.closest ? el.closest('[data-page]') : null;
+  if (pg && pg.dataset.page !== currentPage) {
+    if (!showPage(pg.dataset.page)) return;
+    jumpToEl(el, true);
+  } else {
+    jumpToEl(el, immediate);
+  }
+  if (!pgNavLock && el.id && location.hash !== `#${el.id}`) history.pushState(null, '', `#${el.id}`);
+};
+
+/* ════════════════ صفحه‌بندی اپلیکیشنی (روتر) ════════════════ */
+let currentPage = 'home';
+let pgAuthKnown = false;
+let pgLoggedIn = false;
+let pgNavLock = false;
+const HOME_TITLE = document.title;
+const PAGE_TITLES = {
+  home: HOME_TITLE,
+  shop: 'خرید کانفیگ | ورتکس‌نت',
+  account: 'حساب کاربری | ورتکس‌نت',
+  track: 'پیگیری سفارش | ورتکس‌نت',
+  news: 'اطلاعیه‌ها | ورتکس‌نت',
+  reviews: 'نظرات مشتریان | ورتکس‌نت',
+  guide: 'راهنمای خرید | ورتکس‌نت',
+};
+function showPage(name, instant = false) {
+  if (!PAGE_TITLES[name]) name = 'home';
+  if (name === 'account' && pgAuthKnown && !pgLoggedIn) {
+    afterAuthGo = 'orders';
+    openAuth('login');
+    return false;
+  }
+  const changed = name !== currentPage;
+  currentPage = name;
+  $$('[data-page]').forEach((el) => { el.hidden = el.dataset.page !== name; });
+  const acc = $('#account');
+  if (acc) acc.hidden = !(name === 'account' && pgLoggedIn);
+  document.title = PAGE_TITLES[name];
+  const main = $('#main');
+  if (main && changed && !instant && !reducedMotion) {
+    main.classList.remove('page-switch');
+    void main.offsetWidth;
+    main.classList.add('page-switch');
+  }
+  if (name === 'home') setBnavActive('home');
+  else if (name !== 'account') setBnavActive('');
+  ScrollTrigger.refresh();
+  $$('.nav-links a[href^="#"]').forEach((a) => {
+    const t = $(a.getAttribute('href'));
+    const tp = t && t.closest ? t.closest('[data-page]') : null;
+    if (tp && tp.dataset.page !== name) a.classList.remove('is-active');
+  });
+  return true;
+}
+function routeOnAuth() {
+  pgAuthKnown = true;
+  pgLoggedIn = !!me;
+  if (!me && currentPage === 'account') showPage('home', true);
+  const acc = $('#account');
+  if (acc) acc.hidden = !(currentPage === 'account' && !!me);
+}
+window.addEventListener('popstate', () => {
+  pgNavLock = true;
+  scrollToTarget(location.hash && location.hash.length > 1 ? location.hash : '#hero', true);
+  pgNavLock = false;
+});
+$('#qa-service')?.addEventListener('click', () => goAccount('service'));
+$('#qa-support')?.addEventListener('click', () => toggleChat(true));
+(() => {
+  const h = location.hash;
+  const el = /^#[A-Za-z][\w-]*$/.test(h) ? $(h) : null;
+  const pg = el && el.closest ? el.closest('[data-page]') : null;
+  showPage(pg ? pg.dataset.page : 'home', true);
+  if (el && pg) jumpToEl(el, true);
+})();
 
 /* ════════════════ پری‌لودر + ورود هیرو ════════════════ */
 document.body.classList.add('is-loading');
@@ -183,12 +260,16 @@ let wiping = false;
 $$('a.nav-link[href^="#"]').forEach((a) => {
   a.addEventListener('click', (e) => {
     const id = a.getAttribute('href');
-    if (!$(id) || e.metaKey || e.ctrlKey) return;
+    const el = $(id);
+    if (!el || e.metaKey || e.ctrlKey) return;
     e.preventDefault();
     if (menuOpen) setMenu(false);
     if (a.dataset.buyGb) setSelectedGB(Number(a.dataset.buyGb));
     if (a.id === 'calc-buy') setSelectedGB(calcGB);
-    if (reducedMotion || wiping) { scrollToTarget(id); return; }
+    const pg = el.closest ? el.closest('[data-page]') : null;
+    const pageChange = !!(pg && pg.dataset.page !== currentPage);
+    if (!pageChange) { scrollToTarget(id); return; }
+    if (reducedMotion || wiping) { scrollToTarget(id, true); return; }
     wiping = true;
     gsap.timeline({ onComplete: () => { wiping = false; } })
       .set(wipe, { yPercent: -101 })
@@ -196,7 +277,6 @@ $$('a.nav-link[href^="#"]').forEach((a) => {
       .add(() => scrollToTarget(id, true))
       .to(wipe, { yPercent: 101, duration: 0.55, ease: 'power4.inOut', delay: 0.08 })
       .set(wipe, { yPercent: -101 });
-    history.replaceState(null, '', id);
   });
 });
 
@@ -714,9 +794,10 @@ function renderAuthState() {
   if (gate) gate.hidden = !!me;
   if (orderForm) orderForm.hidden = !me || !$('#order-success').hidden;
   const acc = $('#account');
-  if (acc) acc.hidden = !me;
+  if (acc) acc.hidden = !me || currentPage !== 'account';
   refreshChatAuthUI();
   loadReviews();
+  routeOnAuth();
   if (me) {
     $('#acc-username').textContent = me.name || me.username;
     const pf = $('#profile-form');
@@ -973,15 +1054,8 @@ $$('.bnav-item').forEach((b) => b.addEventListener('click', () => {
 }));
 function spyBnav() {
   if (chatOpen) return;
-  const acc = $('#account');
-  if (acc && me && !acc.hidden) {
-    const r = acc.getBoundingClientRect();
-    if (r.top < innerHeight * 0.55 && r.bottom > innerHeight * 0.4) {
-      setBnavActive($('#acc-orders').hidden ? 'service' : 'orders');
-      return;
-    }
-  }
-  if (window.scrollY < innerHeight * 0.6) setBnavActive('home');
+  if (currentPage === 'account') setBnavActive($('#acc-orders').hidden ? 'service' : 'orders');
+  else if (currentPage === 'home') setBnavActive('home');
 }
 let spyTick = false;
 window.addEventListener('scroll', () => {

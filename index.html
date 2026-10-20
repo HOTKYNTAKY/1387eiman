@@ -228,7 +228,7 @@
   <main id="main">
 
     <!-- ══════════ هیرو ══════════ -->
-    <section id="hero" class="hero" aria-label="معرفی">
+    <section id="hero" class="hero pg" data-page="home" aria-label="معرفی">
       <div class="hero-content">
         <button type="button" id="ann-pill" class="ann-pill" hidden data-hover aria-label="آخرین اطلاعیه">
           <svg class="ic-sm" aria-hidden="true"><use href="#ic-mega"/></svg>
@@ -267,7 +267,7 @@
     </section>
 
     <!-- ══════════ نوار متحرک ══════════ -->
-    <div class="marquee" aria-hidden="true">
+    <div class="marquee pg" data-page="home" aria-hidden="true">
       <div class="marquee-track">
         <span>اینترنت آزاد ✦ سرعت نور ✦ بدون قطعی ✦ پینگ پایین ✦ تحویل فوری ✦ خرید مستقیم از سایت ✦&nbsp;</span>
         <span>اینترنت آزاد ✦ سرعت نور ✦ بدون قطعی ✦ پینگ پایین ✦ تحویل فوری ✦ خرید مستقیم از سایت ✦&nbsp;</span>
@@ -275,7 +275,7 @@
     </div>
 
     <!-- ══════════ ویژگی‌ها ══════════ -->
-    <section id="features" class="section features" aria-label="ویژگی‌ها">
+    <section id="features" class="section features pg" data-page="home" aria-label="ویژگی‌ها">
       <div class="container">
         <p class="section-label" data-reveal><span>۰۱</span> — چرا ورتکس‌نت؟</p>
         <h2 class="statement" data-words>
@@ -320,9 +320,9 @@
     </section>
 
     <!-- ══════════ تعرفه‌ها ══════════ -->
-    <section id="plans" class="section plans" aria-label="تعرفه‌ها">
+    <section id="plans" class="section plans pg" data-page="shop" aria-label="تعرفه‌ها">
       <div class="container">
-        <p class="section-label" data-reveal><span>۰۲</span> — تعرفه‌ها</p>
+        <p class="section-label" data-reveal><span>۰۱</span> — تعرفه‌ها</p>
         <h2 class="section-title" data-reveal>شفاف و ساده:<br />هر گیگ فقط <em><span data-price-per-gb>۴٬۰۰۰</span> تومان</em></h2>
         <p class="section-sub" data-reveal>همه پلن‌ها <span data-plan-days>۳۰</span> روزه‌ان و شامل تحویل خودکار لینک اشتراک و همه لوکیشن‌ها میشن.</p>
 
@@ -397,9 +397,9 @@
     </section>
 
     <!-- ══════════ خرید / پرداخت ══════════ -->
-    <section id="checkout" class="section checkout" aria-label="خرید و پرداخت">
+    <section id="checkout" class="section checkout pg" data-page="shop" aria-label="خرید و پرداخت">
       <div class="container">
-        <p class="section-label" data-reveal><span>۰۳</span> — خرید و پرداخت</p>
+        <p class="section-label" data-reveal><span>۰۲</span> — خرید و پرداخت</p>
         <h2 class="section-title" data-reveal>در یک دقیقه<br /><em>سفارشت رو ثبت کن</em></h2>
 
         <div class="checkout-card glass-card" data-reveal>
@@ -497,7 +497,7 @@
     </section>
 
     <!-- ══════════ حساب من: سرویس من + سفارشات ══════════ -->
-    <section id="account" class="section account" aria-label="حساب کاربری" hidden>
+    <section id="account" class="section account pg" data-page="account" aria-label="حساب کاربری" hidden>
       <div class="container">
         <p class="section-label"><span>★</span> — پنل کاربری</p>
         <h2 class="section-title">سلام <em><bdi id="acc-username">کاربر</bdi></em> 👋</h2>
@@ -547,7 +547,7 @@
     </section>
 
     <!-- ══════════ اعداد ══════════ -->
-    <section class="section numbers" aria-label="ورتکس‌نت در یک نگاه">
+    <section class="section numbers pg" data-page="home" aria-label="ورتکس‌نت در یک نگاه">
       <div class="container numbers-grid">
         <div class="number-cell" data-reveal><strong><span data-count="4000" data-count-key="pricePerGB">۰</span></strong><span>تومان — قیمت هر گیگ</span></div>
         <div class="number-cell" data-reveal><strong><span data-count="30" data-count-key="planDays">۰</span></strong><span>روز اعتبار هر پلن</span></div>
@@ -557,17 +557,56 @@
     </section>
 
     <!-- ══════════ نحوه خرید ══════════ -->
-    <section id="news" class="section news" aria-label="اطلاعیه‌ها">
+    <section class="section quick pg" data-page="home" aria-label="دسترسی سریع">
       <div class="container">
-        <p class="section-label" data-reveal><span>۰۴</span> — اطلاعیه‌ها</p>
+        <p class="section-label" data-reveal><span>✦</span> — دسترسی سریع</p>
+        <h2 class="section-title" data-reveal>هر کاری داری،<br />از <em>همین‌جا</em> شروع کن</h2>
+        <div class="qa-grid">
+          <a class="qa-tile hot nav-link" href="#plans" data-reveal data-hover>
+            <span class="qa-ico"><svg aria-hidden="true"><use href="#ic-tag"/></svg></span>
+            <b>خرید کانفیگ</b>
+            <span>تعرفه‌ها و خرید فوری با کارت‌به‌کارت</span>
+          </a>
+          <button type="button" class="qa-tile" id="qa-service" data-reveal data-hover>
+            <span class="qa-ico"><svg aria-hidden="true"><use href="#ic-service"/></svg></span>
+            <b>سرویس من</b>
+            <span>حجم و روزهای باقی‌مانده اشتراکت، زنده</span>
+          </button>
+          <a class="qa-tile nav-link" href="#track" data-reveal data-hover>
+            <span class="qa-ico"><svg aria-hidden="true"><use href="#ic-search"/></svg></span>
+            <b>پیگیری سفارش</b>
+            <span>وضعیت سفارش و تحویل کانفیگت رو ببین</span>
+          </a>
+          <a class="qa-tile nav-link" href="#news" data-reveal data-hover>
+            <span class="qa-ico"><svg aria-hidden="true"><use href="#ic-mega"/></svg></span>
+            <b>اطلاعیه‌ها</b>
+            <span>آخرین خبرها و اطلاعیه‌های ورتکس‌نت</span>
+          </a>
+          <a class="qa-tile nav-link" href="#reviews" data-reveal data-hover>
+            <span class="qa-ico"><svg aria-hidden="true"><use href="#ic-quote"/></svg></span>
+            <b>نظرات مشتریان</b>
+            <span>حرف‌های بقیه مشتری‌ها؛ ناشناس نظر بده</span>
+          </a>
+          <button type="button" class="qa-tile" id="qa-support" data-reveal data-hover>
+            <span class="qa-ico"><svg aria-hidden="true"><use href="#ic-chat"/></svg></span>
+            <b>پشتیبانی آنلاین</b>
+            <span>سؤالی داری؟ همین‌جا با پشتیبانی چت کن</span>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <section id="news" class="section news pg" data-page="news" aria-label="اطلاعیه‌ها">
+      <div class="container">
+        <p class="section-label" data-reveal><span>۰۱</span> — اطلاعیه‌ها</p>
         <h2 class="section-title" data-reveal>تازه‌ترین <em>خبرها</em><br />و اطلاعیه‌ها</h2>
         <div id="news-list" class="news-list"><p class="news-empty">در حال بارگذاری…</p></div>
       </div>
     </section>
 
-    <section id="steps" class="section steps" aria-label="نحوه خرید">
+    <section id="steps" class="section steps pg" data-page="guide" aria-label="نحوه خرید">
       <div class="container">
-        <p class="section-label" data-reveal><span>۰۵</span> — نحوه خرید</p>
+        <p class="section-label" data-reveal><span>۰۱</span> — نحوه خرید</p>
         <h2 class="section-title" data-reveal>فقط در <em>سه قدم</em><br />وصل میشی.</h2>
 
         <ol class="process-list">
@@ -591,9 +630,9 @@
     </section>
 
     <!-- ══════════ پیگیری سفارش ══════════ -->
-    <section id="track" class="section track" aria-label="پیگیری سفارش">
+    <section id="track" class="section track pg" data-page="track" aria-label="پیگیری سفارش">
       <div class="container">
-        <p class="section-label" data-reveal><span>۰۶</span> — پیگیری سفارش</p>
+        <p class="section-label" data-reveal><span>۰۱</span> — پیگیری سفارش</p>
         <h2 class="section-title" data-reveal>کانفیگت<br />آماده‌ست؟ <em>چک کن</em></h2>
         <p class="section-sub" data-reveal>اگه حساب کاربری داری، وضعیت همهٔ سفارش‌ها و لینک اشتراکت توی بخش <b>«سفارشات»</b> و <b>«سرویس من»</b> هست. این فرم برای سفارش‌های قدیمی (قبل از حساب کاربری) است.</p>
 
@@ -620,9 +659,9 @@
     </section>
 
     <!-- ══════════ سوالات متداول ══════════ -->
-    <section id="faq" class="section faq" aria-label="سوالات متداول">
+    <section id="faq" class="section faq pg" data-page="guide" aria-label="سوالات متداول">
       <div class="container">
-        <p class="section-label" data-reveal><span>۰۷</span> — سوالات متداول</p>
+        <p class="section-label" data-reveal><span>۰۲</span> — سوالات متداول</p>
         <h2 class="section-title" data-reveal>سؤالی داری؟<br />جوابش <em>اینجاست</em>.</h2>
 
         <div class="faq-list">
@@ -655,9 +694,9 @@
     </section>
 
     <!-- ══════════ نظرات مشتریان ══════════ -->
-    <section id="reviews" class="section reviews" aria-label="نظرات مشتریان">
+    <section id="reviews" class="section reviews pg" data-page="reviews" aria-label="نظرات مشتریان">
       <div class="container">
-        <p class="section-label" data-reveal><span>۰۸</span> — نظرات مشتریان</p>
+        <p class="section-label" data-reveal><span>۰۱</span> — نظرات مشتریان</p>
         <h2 class="section-title" data-reveal>حرف‌های <em>مشتری‌ها</em></h2>
         <p class="rev-note" data-reveal>نظرها کاملاً <b>ناشناس</b> منتشر می‌شن؛ هیچ اطلاعاتی از نویسنده نمایش داده نمی‌شه. هر نظر بعد از بررسی مدیریت عمومی می‌شه.</p>
 
