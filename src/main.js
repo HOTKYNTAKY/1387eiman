@@ -98,17 +98,28 @@ const jumpToEl = (el, immediate = false) => {
   if (lenis) lenis.scrollTo(el, { immediate, offset: 0, duration: immediate ? 0 : 1.4 });
   else el.scrollIntoView({ behavior: immediate || reducedMotion ? 'auto' : 'smooth' });
 };
-const scrollToTarget = (target, immediate = false) => {
+const getScrollY = () => window.scrollY || 0;
+const setScrollY = (y) => {
+  if (lenis) lenis.scrollTo(y, { immediate: true });
+  else window.scrollTo(0, y);
+};
+const scrollToTarget = (target, immediate = false, restoreY = null) => {
   const el = typeof target === 'string' ? $(target) : target;
   if (!el) return;
+  const prevY = getScrollY();
   const pg = el.closest ? el.closest('[data-page]') : null;
   if (pg && pg.dataset.page !== currentPage) {
     if (!showPage(pg.dataset.page)) return;
-    jumpToEl(el, true);
+    if (restoreY != null) setScrollY(restoreY); else jumpToEl(el, true);
+  } else if (restoreY != null) {
+    setScrollY(restoreY);
   } else {
     jumpToEl(el, immediate);
   }
-  if (!pgNavLock && el.id && location.hash !== `#${el.id}`) history.pushState(null, '', `#${el.id}`);
+  if (!pgNavLock && el.id && location.hash !== `#${el.id}`) {
+    try { history.replaceState({ pgY: prevY }, ''); } catch { /* ignore */ }
+    history.pushState(null, '', `#${el.id}`);
+  }
 };
 
 /* ════════════════ صفحه‌بندی اپلیکیشنی (روتر) ════════════════ */
@@ -162,13 +173,28 @@ function routeOnAuth() {
   const acc = $('#account');
   if (acc) acc.hidden = !(currentPage === 'account' && !!me);
 }
-window.addEventListener('popstate', () => {
+window.addEventListener('popstate', (e) => {
   pgNavLock = true;
-  scrollToTarget(location.hash && location.hash.length > 1 ? location.hash : '#hero', true);
+  const y = e.state && typeof e.state.pgY === 'number' ? e.state.pgY : null;
+  scrollToTarget(location.hash && location.hash.length > 1 ? location.hash : '#hero', true, y);
   pgNavLock = false;
 });
 $('#qa-service')?.addEventListener('click', () => goAccount('service'));
 $('#qa-support')?.addEventListener('click', () => toggleChat(true));
+if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
+let pgSaveTick = false;
+window.addEventListener('scroll', () => {
+  if (pgSaveTick) return;
+  pgSaveTick = true;
+  requestAnimationFrame(() => {
+    pgSaveTick = false;
+    const y = getScrollY();
+    if (!history.state || history.state.pgY !== y) {
+      try { history.replaceState({ pgY: y }, ''); } catch { /* ignore */ }
+    }
+  });
+}, { passive: true });
+
 (() => {
   const h = location.hash;
   const el = /^#[A-Za-z][\w-]*$/.test(h) ? $(h) : null;
