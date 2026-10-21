@@ -102,6 +102,7 @@ textarea:focus{outline:none;border-color:rgba(216,180,106,.6)}
 .migrate-box{margin-top:12px;border:1px dashed rgba(216,180,106,.45);border-radius:12px;padding:12px 14px;background:rgba(216,180,106,.05)}
 .mig-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-top:10px}
 .mig-grid label{display:block;font-size:12.5px;color:var(--dim);margin-bottom:6px}
+.rep-h{margin:24px 0 12px;font-size:15.5px}
 </style>
 </head>
 <body>
@@ -152,6 +153,7 @@ textarea:focus{outline:none;border-color:rgba(216,180,106,.6)}
         <button class="btn btn-ghost btn-sm" id="btn-comments">📝 نظرات <span class="badge" id="comments-badge" hidden>۰</span></button>
         <button class="btn btn-ghost btn-sm" id="btn-panels">🖥 پنل‌ها</button>
         <button class="btn btn-ghost btn-sm" id="btn-reports">🚨 گزارش‌ها <span class="badge" id="reports-badge" hidden>۰</span></button>
+        <button class="btn btn-ghost btn-sm" id="btn-daily">📊 گزارش روزانه</button>
         <button class="btn btn-ghost btn-sm" id="btn-refresh">⟳ تازه‌سازی</button>
         <a class="btn btn-ghost btn-sm" href="__SITE_URL__" target="_blank" rel="noopener" style="text-decoration:none">🏠 برگشتن به صفحه اصلی</a>
         <button class="btn btn-ghost btn-sm" id="btn-logout">خروج</button>
@@ -307,6 +309,22 @@ textarea:focus{outline:none;border-color:rgba(216,180,106,.6)}
       </div>
     </div>
 
+    <div id="panel-daily" style="display:none">
+      <div class="card">
+        <h2>📊 گزارش روزانه فروشگاه</h2>
+        <p class="small">همهٔ فعالیت فروشگاه در یک روز (به وقت ایران)، مقایسه با روز قبل، و کارهای بازی که همین الان منتظر توجه‌اند.</p>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:end;margin-top:14px">
+          <div><label for="daily-date">روز گزارش</label><input id="daily-date" type="date" dir="ltr" /></div>
+          <button class="btn btn-gold btn-sm" id="daily-go" type="button" style="width:auto">نمایش گزارش</button>
+          <button class="btn btn-ghost btn-sm" id="daily-today" type="button">امروز</button>
+          <button class="btn btn-ghost btn-sm" id="daily-yesterday" type="button">دیروز</button>
+        </div>
+        <p class="msg" id="daily-msg"></p>
+        <div id="daily-body" style="margin-top:8px"><p class="empty">در حال بارگذاری…</p></div>
+        <button class="btn btn-ghost btn-sm" id="btn-back8" style="margin-top:16px">← بازگشت به سفارش‌ها</button>
+      </div>
+    </div>
+
     <div id="panel-chats" style="display:none">
       <div class="card">
         <h2>💬 گفت‌وگو با مشتری‌ها</h2>
@@ -362,6 +380,7 @@ function showPanel(name) {
   $('#panel-comments').style.display = name === 'comments' ? 'block' : 'none';
   $('#panel-panels').style.display = name === 'panels' ? 'block' : 'none';
   $('#panel-reports').style.display = name === 'reports' ? 'block' : 'none';
+  $('#panel-daily').style.display = name === 'daily' ? 'block' : 'none';
 }
 function setChatBadge(n) {
   const b = $('#chat-badge');
@@ -1067,6 +1086,83 @@ $('#btn-back7').onclick = () => { showPanel('main'); loadOrders(); };
 
 /* دکمه رفتن به پنل‌ها از داخل تنظیمات */
 (() => { const g = document.querySelector('#btn-goto-panels'); if (g) g.onclick = () => { showPanel('panels'); loadPanelsAdmin(); }; })();
+
+/* ── گزارش روزانهٔ فروشگاه ── */
+const faDayLabel = (dayStr) => new Date(`${dayStr}T12:00:00Z`).toLocaleDateString('fa-IR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+function deltaChip(cur, prev) {
+  cur = Number(cur) || 0; prev = Number(prev) || 0;
+  if (!prev) return cur ? '<span class="tag gold">دیروز: صفر</span>' : '';
+  const d = Math.round(((cur - prev) / prev) * 100);
+  if (d === 0) return '<span class="tag">= دیروز</span>';
+  return d > 0 ? `<span class="tag green">▲ ${toFa(d)}٪ از دیروز</span>` : `<span class="tag">▼ ${toFa(-d)}٪ از دیروز</span>`;
+}
+const repStat = (label, value, chip = '') => `<div class="stat"><strong>${value}</strong><span>${label}</span>${chip ? `<div style="margin-top:6px">${chip}</div>` : ''}</div>`;
+async function loadDaily(dayStr) {
+  const box = $('#daily-body');
+  msg('#daily-msg', '');
+  try {
+    const r = await api(`/api/admin/daily-report${dayStr ? `?date=${encodeURIComponent(dayStr)}` : ''}`);
+    const s = r.stats, pv = r.prev, sn = r.snapshot;
+    const inp = $('#daily-date'); if (inp) inp.value = r.date;
+    box.innerHTML = `
+      <h3 style="margin-top:10px">📅 ${esc(faDayLabel(r.date))}${r.isToday ? ' <span class="tag gold">امروز — تا این لحظه</span>' : ''}</h3>
+      <h4 class="rep-h">💰 فروش و سفارش‌ها</h4>
+      <div class="stats">
+        ${repStat('درآمد تأییدشده (تومان)', toFa(s.revenue), deltaChip(s.revenue, pv.revenue))}
+        ${repStat('سفارش تأییدشده', toFa(s.approvedCount), deltaChip(s.approvedCount, pv.approvedCount))}
+        ${repStat('حجم تأییدشده (گیگ)', toFa(s.approvedGB), deltaChip(s.approvedGB, pv.approvedGB))}
+        ${repStat('سفارش ثبت‌شده', toFa(s.ordersCreated), deltaChip(s.ordersCreated, pv.ordersCreated))}
+        ${repStat('ارزش سفارش‌های ثبت‌شده (تومان)', toFa(s.createdValue))}
+        ${repStat('سفارش ردشده', toFa(s.rejectedCount))}
+        ${repStat('از این روز هنوز در انتظار', toFa(s.pendingFromDay))}
+        ${repStat('مجموع تخفیف داده‌شده (تومان)', toFa(s.discountGiven))}
+      </div>
+      ${s.topDiscounts.length ? `<p class="small">🎟 کدهای تخفیف روز: ${s.topDiscounts.map((d) => `<b dir="ltr">${esc(d.code)}</b> (${toFa(d.count)} بار — ${toFa(d.amount)} تومان)`).join(' · ')}</p>` : ''}
+      <h4 class="rep-h">🖥 عملکرد پنل‌ها</h4>
+      ${s.panels.length ? s.panels.map((p) => `<div class="disc-row"><div class="disc-main"><b>${esc(p.name)}</b> <span class="small">ثبت: ${toFa(p.created)} · تأیید: ${toFa(p.approved)} · حجم: ${toFa(p.gb)} گیگ · درآمد: ${toFa(p.revenue)} تومان</span></div></div>`).join('') : '<p class="empty">پنلی نیست.</p>'}
+      <h4 class="rep-h">👥 مشتری‌ها و فعالیت‌ها</h4>
+      <div class="stats">
+        ${repStat('ثبت‌نام جدید', toFa(s.newUsers), deltaChip(s.newUsers, pv.newUsers))}
+        ${repStat('پیام چت (همه)', toFa(s.chatMessages))}
+        ${repStat('پیام مشتری‌ها', toFa(s.chatUserMessages))}
+        ${repStat('گزارش مشکل ثبت‌شده', toFa(s.reportsFiled))}
+        ${repStat('گزارش بسته‌شده', toFa(s.reportsResolved))}
+        ${repStat('نظر جدید مشتری‌ها', toFa(s.commentsNew))}
+        ${repStat('انتقال بین پنل‌ها', toFa(s.migrationsCount))}
+        ${repStat('اطلاعیه منتشرشده', toFa(s.announcementsNew))}
+      </div>
+      <h4 class="rep-h">🚨 کارهای باز (همین الان)</h4>
+      <div class="stats">
+        ${repStat('سفارش در انتظار بررسی', toFa(sn.pendingOrders))}
+        ${repStat('خطای ساخت کانفیگ', toFa(sn.provisionErrors))}
+        ${repStat('گزارش مشکل باز', toFa(sn.openReports))}
+        ${repStat('نظر در انتظار تأیید', toFa(sn.pendingComments))}
+        ${repStat('پیام خوانده‌نشدهٔ چت', toFa(sn.unreadChats))}
+        ${repStat('اشتراک در آستانهٔ انقضا (۳ روز)', toFa(sn.expiringSoon))}
+        ${repStat('اشتراک منقضی‌شده', toFa(sn.expiredServices))}
+        ${repStat('اشتراک فعال فعلی', toFa(sn.activeServices))}
+      </div>
+      <h4 class="rep-h">🏦 تصویر کلی فروشگاه (همهٔ زمان‌ها)</h4>
+      <div class="stats">
+        ${repStat('کل درآمد تأییدشده (تومان)', toFa(sn.revenueAllTime))}
+        ${repStat('کل سفارش‌ها', toFa(sn.totalOrders))}
+        ${repStat('کل مشتری‌ها', toFa(sn.totalUsers))}
+      </div>
+      <h4 class="rep-h">🧾 سفارش‌های این روز (${toFa(s.lists.orders.length)})</h4>
+      ${s.lists.orders.length ? s.lists.orders.map((o) => `<div class="disc-row"><div class="disc-main"><b dir="ltr">${esc(o.code)}</b> ${o.status === 'approved' ? '<span class="tag green">تأییدشده</span>' : o.status === 'rejected' ? '<span class="tag">ردشده</span>' : '<span class="tag gold">در انتظار</span>'} <span class="small"><bdi dir="ltr">@${esc(o.username || '؟')}</bdi> · ${toFa(o.gb)} گیگ · ${toFa(o.price)} تومان${o.panelName ? ` · ${esc(o.panelName)}` : ''} · ${faDate(o.createdAt)}</span></div></div>`).join('') : '<p class="empty">این روز سفارشی ثبت نشده.</p>'}
+      ${s.lists.newUsers.length ? `<h4 class="rep-h">🆕 مشتری‌های جدید این روز</h4>` + s.lists.newUsers.map((u) => `<div class="disc-row"><div class="disc-main"><b dir="ltr">@${esc(u.username)}</b> <span class="small">${esc(u.name || '')} · ${faDate(u.createdAt)}</span></div></div>`).join('') : ''}
+      ${s.lists.reports.length ? `<h4 class="rep-h">🚨 گزارش‌های مشکل این روز</h4>` + s.lists.reports.map((rp) => `<div class="disc-row"><div class="disc-main"><b dir="ltr">${esc(rp.code)}</b> ${rp.status === 'open' ? '<span class="tag gold">باز</span>' : '<span class="tag green">انجام‌شده</span>'} <span class="small"><bdi dir="ltr">@${esc(rp.username || '؟')}</bdi>${rp.panelName ? ` · ${esc(rp.panelName)}` : ''}</span><div class="cmt-text">${esc(rp.text)}</div></div></div>`).join('') : ''}
+      ${s.lists.migrations.length ? `<h4 class="rep-h">🔁 انتقال‌های این روز</h4>` + s.lists.migrations.map((m) => `<div class="disc-row"><div class="disc-main"><b dir="ltr">${esc(m.code)}</b> <span class="small">${esc(m.fromPanelName || '؟')} ← ${esc(m.toPanelName || '؟')} · ${toFa(m.gb)} گیگ / ${toFa(m.days)} روز · ${faDate(m.at)}</span></div></div>`).join('') : ''}
+    `;
+  } catch (e) { msg('#daily-msg', e.message); }
+}
+$('#btn-daily').onclick = () => { showPanel('daily'); loadDaily($('#daily-date').value || ''); };
+$('#btn-back8').onclick = () => { showPanel('main'); loadOrders(); };
+$('#daily-go').onclick = () => loadDaily($('#daily-date').value || '');
+$('#daily-today').onclick = () => loadDaily('');
+$('#daily-yesterday').onclick = async () => {
+  try { const r = await api('/api/admin/daily-report'); loadDaily(r.prevDate); } catch { loadDaily(''); }
+};
 
 /* ── شروع ── */
 (async () => {

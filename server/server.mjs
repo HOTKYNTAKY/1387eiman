@@ -697,6 +697,89 @@ async function computeRemaining(order) {
     expire: expire || null, source, lastUsageAt: lu?.at || null,
   };
 }
+/* ───────────────── گزارش روزانهٔ فروشگاه (به وقت ایران) ───────────────── */
+let _tzFmt = null;
+try { _tzFmt = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Tehran', year: 'numeric', month: '2-digit', day: '2-digit' }); } catch { _tzFmt = null; }
+const tzDay = (iso) => {
+  const t = Date.parse(iso || '');
+  if (!Number.isFinite(t)) return '';
+  if (_tzFmt) return _tzFmt.format(new Date(t));
+  return new Date(t + 3.5 * 3600_000).toISOString().slice(0, 10); // پشتیبان: ایران UTC+3:30
+};
+const shiftDay = (dayStr, delta) => {
+  const d = new Date(`${dayStr}T12:00:00Z`);
+  d.setUTCDate(d.getUTCDate() + delta);
+  return d.toISOString().slice(0, 10);
+};
+const isDayStr = (s) => typeof s === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(s) && shiftDay(s, 0) === s;
+function dayStats(day) {
+  const sum = (arr, f) => arr.reduce((s, x) => s + (Number(f(x)) || 0), 0);
+  const created = orders.filter((o) => tzDay(o.createdAt) === day);
+  const createdOk = created.filter((o) => o.status !== 'rejected');
+  const approved = orders.filter((o) => o.status === 'approved' && tzDay(o.decidedAt) === day);
+  const rejected = orders.filter((o) => o.status === 'rejected' && tzDay(o.decidedAt) === day);
+  const filedReports = serviceReports.filter((r) => tzDay(r.createdAt) === day);
+  const chatMsgs = Object.values(chats).flatMap((t) => t.messages).filter((m) => tzDay(m.at) === day);
+  const migrations = [];
+  for (const o of orders) if (Array.isArray(o.migrations)) for (const m of o.migrations) if (tzDay(m.at) === day) migrations.push({ code: o.code, ...m });
+  const discMap = new Map();
+  for (const o of createdOk) if (o.discountCode) {
+    const cur = discMap.get(o.discountCode) || { code: o.discountCode, count: 0, amount: 0 };
+    cur.count++; cur.amount += Number(o.discountAmount) || 0;
+    discMap.set(o.discountCode, cur);
+  }
+  return {
+    ordersCreated: created.length,
+    createdGB: sum(createdOk, (o) => o.gb),
+    createdValue: sum(createdOk, (o) => o.price),
+    approvedCount: approved.length,
+    approvedGB: sum(approved, (o) => o.gb),
+    revenue: sum(approved, (o) => o.price),
+    rejectedCount: rejected.length,
+    pendingFromDay: created.filter((o) => o.status === 'pending').length,
+    discountGiven: sum(createdOk, (o) => o.discountAmount || 0),
+    topDiscounts: [...discMap.values()].sort((a, b) => b.amount - a.amount).slice(0, 5),
+    newUsers: users.filter((u) => tzDay(u.createdAt) === day).length,
+    reportsFiled: filedReports.length,
+    reportsResolved: serviceReports.filter((r) => r.resolvedAt && tzDay(r.resolvedAt) === day).length,
+    commentsNew: comments.filter((c) => tzDay(c.createdAt) === day).length,
+    chatMessages: chatMsgs.length,
+    chatUserMessages: chatMsgs.filter((m) => m.from === 'user').length,
+    chatAdminMessages: chatMsgs.filter((m) => m.from === 'admin').length,
+    migrationsCount: migrations.length,
+    announcementsNew: announcements.filter((a) => tzDay(a.createdAt) === day).length,
+    panels: panelsOf().map((p) => {
+      const c = createdOk.filter((o) => panelForOrder(o)?.id === p.id);
+      const a = approved.filter((o) => panelForOrder(o)?.id === p.id);
+      return { id: p.id, name: p.name, created: c.length, approved: a.length, gb: sum(a, (o) => o.gb), revenue: sum(a, (o) => o.price) };
+    }),
+    lists: {
+      orders: created.slice(0, 60).map((o) => ({ code: o.code, username: o.username || '', gb: o.gb, price: o.price, status: o.status, panelName: panelNameOf(o), createdAt: o.createdAt })),
+      newUsers: users.filter((u) => tzDay(u.createdAt) === day).slice(0, 60).map((u) => ({ username: u.username, name: u.name || '', createdAt: u.createdAt })),
+      reports: filedReports.slice(0, 30).map((r) => ({ code: r.code, username: r.username, panelName: r.panelName, text: r.text, status: r.status, createdAt: r.createdAt })),
+      migrations: migrations.slice(0, 30),
+    },
+  };
+}
+function shopSnapshot() {
+  const now = Math.floor(Date.now() / 1000);
+  const actives = orders.filter((o) => o.status === 'approved' && o.pg);
+  const expOf = (o) => toEpochSec(o.pg?.lastUsage?.expire) ?? toEpochSec(o.pg?.expire);
+  return {
+    totalUsers: users.length,
+    totalOrders: orders.length,
+    revenueAllTime: orders.filter((o) => o.status === 'approved').reduce((s, o) => s + (Number(o.price) || 0), 0),
+    activeServices: actives.length,
+    expiringSoon: actives.filter((o) => { const e = expOf(o); return e && e > now && e - now <= 3 * 86400; }).length,
+    expiredServices: actives.filter((o) => { const e = expOf(o); return e && e <= now; }).length,
+    pendingOrders: orders.filter((o) => o.status === 'pending').length,
+    provisionErrors: orders.filter((o) => o.provisionError).length,
+    openReports: serviceReports.filter((r) => r.status === 'open').length,
+    pendingComments: comments.filter((c) => c.status === 'pending').length,
+    unreadChats: Object.values(chats).reduce((s, t) => s + unreadFor(t, 'admin'), 0),
+  };
+}
+
 const publicOrder = (o) => ({
   code: o.code, gb: o.gb, days: o.days, price: o.price, status: o.status,
   panelName: panelNameOf(o),
@@ -1538,6 +1621,20 @@ const server = http.createServer(async (req, res) => {
         else { serviceReports[idx].status = 'open'; serviceReports[idx].resolvedAt = null; }
         saveReports();
         return sendJson(res, 200, { ok: true });
+      }
+
+      /* ── گزارش روزانهٔ فروشگاه: یک روز به وقت ایران + مقایسه با روز قبل + کارهای باز ── */
+      if (req.method === 'GET' && p === '/api/admin/daily-report') {
+        const today = tzDay(nowISO());
+        let day = url.searchParams.get('date') || today;
+        if (!isDayStr(day) || day > today) day = today;
+        const prevDay = shiftDay(day, -1);
+        const prevStats = dayStats(prevDay);
+        delete prevStats.lists;
+        return sendJson(res, 200, {
+          ok: true, date: day, prevDate: prevDay, isToday: day === today,
+          stats: dayStats(day), prev: prevStats, snapshot: shopSnapshot(),
+        });
       }
 
       /* ── ادمین: چت با مشتری‌ها ── */
